@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>task_Management</title>
+
+<style type="text/css">
+body {
+    font-family: 'microsoft yahei';
+    color: #666;
+    margin: 0px;
+    padding: 0px;
+    font-size: 13px;
+}
+a, div, button, textarea, input {
+    outline: none;
+    text-decoration: none;
+}
+ul, menu, dir {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+.task-menu {
+    position: fixed;
+    left: 0px;
+    margin-top: 10px;
+    background: #fff;
+    width: 140px;
+    border-right: 1px solid #d8d9db;
+    z-index: 99;
+    overflow-y: auto;
+	height: 100%;
+}
+.task-menu li {
+    border-bottom: 1px solid #d8d9db;
+    list-style: none;
+    line-height: 66px;
+    font-size: 18px;
+    text-align: left;
+    padding-left: 14px;
+    cursor: pointer;
+    position: relative;
+	font-weight: bold;
+}
+.task-content {
+    position: absolute;
+    padding: 20px 0px 0px 20px;
+
+    margin-top: 10px;
+    margin-left: 182px;
+    width: 1096px;
+}
+.task-tit {
+    font-size: 18px;
+    color: #333;
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 15px;
+    display: block;
+}
+.search-btn {
+    line-height: 27px;
+    height: 27px;
+    color: #fff;
+    background-color: #4680c4;
+    border: none;
+    outline: none;
+    text-align: center;
+    padding: 0px 10px;
+    cursor: pointer;
+}
+.task-list {
+    width: 89%;
+    line-height: 34px;
+    text-align: center;
+    border: 1px solid #d8d9db;
+    color: #4D4D4D;
+    border-collapse: collapse;
+	padding-left: 14px;
+
+}
+.t-head {
+    background: #f4f4f4!important;
+}
+tr:hover {
+background: #ddf2f7!important;
+}
+.task-list th, .task-list td{
+    display: table-cell;
+    vertical-align: inherit;
+    border: 1px solid #e6e6e6;
+	padding: 3px 4px;
+}
+.tabtag {
+	cursor: pointer;
+	border: none;
+	width: 190px;
+	padding:2px;
+	text-align:center;
+    color: #666;
+}
+</style>
+<!--link rel="stylesheet" href="http://10.10.10.241:3333/comm/static/style/ajia_calendar_blue.css">
+<link rel="stylesheet" href="http://10.10.10.241:3333/comm/static/style/task_manage.css"-->
+<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/moment.min.js"></script>
+<!--script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/ajia_calendar.js"></script>
+<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/common_ggtf.js"></script-->
+
+<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-asDatepicker.js"></script>
+<link rel="stylesheet" href="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/style/asDatepicker.css">
+<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/translate.js"></script>
+<script>
+$(document).ready(function(){
+
+  function PostData(){
+	beed=$("#calendar2").val().split(" - ");
+	be= moment(beed[0],'YYYY/MM/DD').format('YYYYMMDD');
+	ed= moment(beed[1],'YYYY/MM/DD').format('YYYYMMDD');
+	tag=$('#task_tag').val();uname=$('#uname').val();
+	tag=(tag=='')?tag:"&tag="+tag;
+	uname=(uname=='')?uname:"&name="+uname
+	//if($('#task_tag').val()==''){tag=''}
+	//else{tag="&tag="+$('#task_tag').val();}
+	//uname="&name="+$('#uname').val();
+	return(location.href=window.location.pathname+"?be="+be+"&ed="+ed+tag+uname)
+	}
+
+  if(window.location.search==""){
+
+	now=new Date();
+	weekago=new Date(now.getTime()-86400000*6);
+	$("#calendar2").val(moment(weekago).format('YYYYMMDD')+" - "+moment(now).format('YYYYMMDD'));
+	PostData();}
+  else{}
+  $("#calendar2").asDatepicker({mode: 'range'});
+  $('#search1').click(function() {PostData()})
+  $('#uname').val('');
+  $('#task_tag').val('');
+	//翻译
+	for (var k in stack){
+		$('input#'+k).val(stack[k])
+	};
+	for (var k in col_stack){
+	$(".cond_a").each(function(e,th){
+		for (ch in {'title':0,'href':0}){ori=$(this).attr(ch);if (ori.indexOf(k)>-1){$(this).attr(ch,ori.replace(k,col_stack[k]));}}
+
+		})
+	}
+  // 加载快捷键
+  document.onkeydown = function(event) {
+		var e = event || window.event || arguments.callee.caller.arguments[0];
+		if (e && e.keyCode == 13) {PostData();}
+	};
+});
+</script>
+
+</head>
+
+<body>
+<ul class="task-menu">
+    <li class="task-act"><a href=#>~查询任务</a></li>
+</ul>
+<div class="task-content" >
+	<span class="task-tit">历史任务明细</span>
+	<div class="date-wrap">
+	    <div class="sel-2">
+		<!-- type="text" id="ad_date" placeholder="请选择日期" readonly="" -->
+		<input type="text" id="calendar2" >
+		</div>
+		<!--ul class="task-tm">
+			<li data-tm="" id="task-tm1">今日</li>
+			<li data-tm="" id="task-tm2">昨日</li>
+			<li class="task-tm-act" data-tm="" id="task-tm3">本周</li>
+			<li data-tm="" id="task-tm4">本月</li>
+		</ul-->
+		<span>查询模块：</span>
+		<input type="text" id="task_tag" placeholder="填入全部或部分名称">
+		<span>提交人：</span>
+		<input type="text" placeholder={{user}} id="uname">
+
+		<input type="button" id="search1" value="查询" class="search-btn">
+	</div>
+	<table class="task-list">
+		<tbody>
+			<tr class="t-head">
+				<th>任务ID</th><th>查询模块</th><th>提交人</th><th>提交时间</th><th>完成时间</th><th>耗时(秒)</th><th>状态</th><th>操作</th>
+			</tr>
+		</tbody>
+		<tbody id="dataclone" style="display: table-row-group;line-height: 28px;">
+			{% for rw in task_data %}
+			<tr>
+				<td>{{ rw['id'] }}</td><td><input readonly=ture class="tabtag" value={{rw['task_tag']}} id={{rw['task_tag']}} title={{rw['task_tag']}}></input></td>
+				<td>{{ rw['uname'] }}</td><td>{{ rw['CreateTime'] }}</td><td>{{ rw['updateTime'] }}</td>
+				<td>{{ rw['dur'] }}</td>
+				<td>{% if rw['status'] in [0] %}已完成
+				    {% elif rw['status'] in [-1]  %}<a href="/wait/task?taskid={{rw['id']}}">计算中...</a>
+					{% elif rw['status'] in [-2]  %}<a title="{{rw['status']}}:{{rw['explain1']}}" href="/info/task?taskid={{rw['id']}}&status={{rw['status']}}&res={{rw['explain1']}}">字符意外</a>
+					{% elif rw['status'] > 0  %}<a title="{{rw['status']}}:{{rw['explain1']}}" href="/info/task?taskid={{rw['id']}}&status={{rw['status']}}&res={{rw['explain1']}}">失败</a>
+					{% endif %}
+				</td>
+				<td><a class="cond_a" title="{{ rw['task_cond'] }}"  href="/info/cond?cond={{ rw['task_cond'] }}">  配置  </a>
+					{% if rw['status'] in [0] %}<a href=" /v_table?dpath={{rw['path']}}&code={{rw['cod']}} ">  查看结果  </a>{% endif %}
+					<a class="cond_a" title="{{ rw['task_cond'] }}"  href="/taskrestart/{{ rw['id'] }}">  任务重启  </a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+</body>

@@ -1,0 +1,77 @@
+
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/style/login.css" />
+<title>自动登陆</title>
+<style type="text/css">
+body{
+	background-image:url(http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/images/login.jpg);
+	background-repeat:no-repeat;
+    background-position: 0px 39px;
+    background-size: cover; 
+	font-family: 'Oleo Script', cursive;
+}
+</style>
+	<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="http://www.gongjuji.net/Content/files/jquery.md5.js"></script>
+	<script type="text/javascript">
+	
+	$(document).ready(function(){
+        $("#lg-form").attr('action',$("#lg-form").attr('action')+window.location.search)
+		$("#login").click(function(){
+			var action = $("#lg-form").attr('action');
+			var form_data = {
+				username: $("#username").val(),
+				password: $.md5($("#password").val()+'ZAOA_LOGIN'),
+				is_ajax: 1
+			};
+			$.ajax({
+				type: "POST",
+				url: action,
+				data: form_data,
+				dataType: "json",
+				success: function(data)
+				{
+					if(data.sta == "success")
+						$("#lg-form").slideUp('slow', function(){
+							$("#message").html('<p class="success">You have logged in successfully!</p><p>Redirecting....</p>');
+							location.href = data.next;
+						});
+					else
+						$("#message").html('<p class="error">ERROR: Invalid username and/or password.</p>');
+				}	
+			});
+			return false;
+		});
+		$("#login").click()
+	});
+
+	</script>
+</head>
+<body>
+	<div class="lg-container">
+		<h1>Admin Area</h1>
+		<form action="login" id="lg-form" name="lg-form" method="post">
+			
+			<div>
+				<label for="username">Username:</label>
+				<input type="text" name="username" id="username" placeholder="username"/>
+			</div>
+			
+			<div>
+				<label for="password">Password:</label>
+				<input type="password" name="password" id="password" placeholder="password" />
+			</div>
+			
+			<div>				
+				<button type="submit" id="login">Login</button>
+			</div>
+			
+		</form>
+		<div id="message"></div>
+	</div>
+</body>
+</html>

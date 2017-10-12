@@ -1,0 +1,72 @@
+'DW_predict_record_accuracy':
+"""
+select ptype, date(real_time),count(1),sum(derror = 0),avg(derror = 0),sum(errorrate1<0.99),avg(errorrate1<0.99),sum(errorrate2<0.99),avg(errorrate2<0.99)  from bimodels.bm_user_predict_record
+where uid > 0 and real_time > _i_ and real_time < _i_
+group by ptype,date(real_time) with rollup
+"""
+,'DW_predictmodel_status':
+"""
+select minfo,update_time from bimodels.bm_predictmodel_status where 1>0 and mid = _i_
+"""
+,'DW_user_predict':
+"""
+select uid, ptype, predict_time,rewei_time,predict_dt,modelpara,modelchoice,update_time,max(update_time),count(1) from bimodels.bm_user_predict_
+where 1>0 and uid in (_i_) and predict_time > _i_ and ptype in (_i_) and predict_dt >= _i_ and predict_dt <= _i_ and update_time >= _i_
+group by uid,ptype ;
+|{"uid":" predict_time,rewei_time,predict_dt,modelpara,modelchoice,update_time,"}
+"""
+,'DW_inspay_orders_detail':
+"""
+select uid,stid,group_id, pay_time/24/3600 daytime,from_unixtime(pay_time) paytime , real_price realprice, orig_price op, orig_price/list_unit_price liters
+, cast(from_unixtime(pay_time, '%H')  as unsigned)+cast(from_unixtime(pay_time, '%i')  as unsigned)/60 paytoc
+, cost_credit cc, coupon_discount cd, pay_time-order_time durt
+, DAYOFWEEK(from_unixtime(pay_time)) weekday
+, DAYOFMONTH(from_unixtime(pay_time)) monthday
+, DAYOFYEAR(from_unixtime(pay_time)) yd
+from dw.dw_inspay_orders
+where ( order_status = 3 or order_status = 4 )
+and uid in (_i_)
+and stid in (_i_)
+and group_id in (_i_)
+and pay_time <= _i_
+order by pay_time
+"""
+,'DW_user_clusting_platfrom':
+"""
+select uid, user_clustingid, wcount,count(1),avg(wcount),avg(dt_avg),avg(liters_avg)
+from bimodels.bm_user_clusting_platfrom
+where 1>0 and uid > _i_ and uid in (_i_) and wcount > _i_ and wcount < _i_
+group by user_clustingid,wcount,uid with rollup
+"""
+,'DW_user_conp':
+"""SELECT
+    DISTINCT(t1.uid),
+    t1.user_coupon_id,
+    t1.end_time,
+    t1.activity_code,
+    t1.coupon_price,
+    t2.wechat_openid,
+    t2.phone,
+    ROUND( ( t1.end_time - UNIX_TIMESTAMP( NOW() ) ) / 86400 ) as day 
+FROM
+        ods.ods_wei_coupon_user_coupons t1 
+INNER JOIN ods.ods_wei_users t2 ON t1.uid = t2.uid 
+WHERE 1>0 and 
+    t1.activity_code in ( 
+        SELECT 
+            send_code 
+        FROM 
+            ods.ods_wei_coupon_send_record 
+        WHERE 
+            type = 2 
+        and task_end_time >= UNIX_TIMESTAMP(NOW()) 
+        and del_time = 0 
+        ORDER BY  
+            send_uids DESC 
+) 
+and t1.activity_type IN (_i_)  
+and ROUND((t1.end_time-UNIX_TIMESTAMP(NOW()))/86400) IN (7,1) 
+and t1.end_time >= UNIX_TIMESTAMP( NOW() ) 
+and t1.is_delete = _i_ 
+and t2.wechat_openid <> _i_ ;
+"""

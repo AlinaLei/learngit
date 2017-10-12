@@ -1,0 +1,14 @@
+<head>
+<h1>Directory listing for {{path}}</h1>
+</head>
+<body>
+<hr>
+{% for cont in conts %}
+	{% if cont == "selfd_sql"%}
+		<li><big><strong><a href="{{cont}}">{{cont}}                ========></a></big></strong></li>
+	{% else %}
+		<li><a href="{{path}}/{{cont}}">{{cont}}</a></li>
+	{% endif %}
+{% endfor %}
+<hr>
+</body>

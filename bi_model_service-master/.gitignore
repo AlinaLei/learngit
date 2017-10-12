@@ -1,0 +1,7 @@
+*.swp
+*.pyc
+.idea/*
+*ipynb*
+*__pycache__*
+*.log*
+*.setting*

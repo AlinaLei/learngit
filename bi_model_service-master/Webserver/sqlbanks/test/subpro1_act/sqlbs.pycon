@@ -1,0 +1,81 @@
+'first':
+"""select now() ;
+"""
+,'DW_invite_friend_activity':
+"""select AC.activity_id,activity_name,activity_type
+  ,FROM_UNIXTIME(start_time-(end_time-start_time)) start_sub_1tw,FROM_UNIXTIME(start_time) starttime,FROM_UNIXTIME(end_time) endtime,FROM_UNIXTIME(end_time+30*24*3600) endtime_add30
+  ,GS.*
+  ,count(1),count(distinct uid),count(distinct inviter_uid),sum(status),sum(order_code <> '')
+from ods.ods_wei_invite_friend_activity AC
+left join ods.ods_wei_invite_invitee_record RE on AC.activity_id = RE.activity_id
+left join (select 1 mer_type,stid mer_id,stname mer_name from ods.ods_wei_stations
+  union all
+  select 2 mer_type,group_id mer_id,group_name mer_name from ods.ods_wei_groups ) GS
+on GS.mer_type = AC.merchant_type and  GS.mer_id= AC.merchant_id
+where RE.isvalid = 1
+and AC.merchant_id in (_i_)
+and mer_name like '%_i_%'
+and RE.create_time >= UNIX_TIMESTAMP('_i_')
+and RE.create_time <= UNIX_TIMESTAMP('_i_')
+and RE.update_time >= UNIX_TIMESTAMP('_i_')
+and RE.update_time <= UNIX_TIMESTAMP('_i_')
+group by AC.activity_id ;
+"""
+,'DW_grst_orderuid_num':
+"""select group_id,stid,count(1),count(distinct uid),sum(orig_price/list_unit_price),min(FROM_UNIXTIME(pay_time)) from dw.dw_inspay_orders
+where uid > 0
+and group_id in (_i_)
+and stid in (_i_)
+and batch_date >= '_i_'
+and batch_date <= '_i_'
+group by group_id,stid ;
+"""
+,'DW_inviter_order_group2':
+"""select AC.activity_id,activity_name,AC.activity_type
+  ,GS.*
+  ,RE.status,sum(O.orig_price/O.list_unit_price),count(1),count(DISTINCT O.uid)
+from ods.ods_wei_invite_friend_activity AC
+left join ods.ods_wei_invite_invitee_record RE on AC.activity_id = RE.activity_id
+inner join (select 2 mer_type,group_id mer_id,group_name mer_name from ods.ods_wei_groups ) GS
+on GS.mer_type = AC.merchant_type and  GS.mer_id= AC.merchant_id
+left join dw.dw_inspay_orders O
+on O.group_id = GS.mer_id and O.uid = inviter_uid
+where RE.isvalid = 1
+and AC.merchant_id in (_i_)
+and O.batch_date >= date('_i_')
+and O.batch_date <= date('_i_')
+and inviter_uid in (select uid from dw.dw_inspay_orders where group_id = GS.mer_id and batch_date > date('_i_') and batch_date < date('_i_') )
+group by AC.activity_id,RE.status ;
+"""
+,'DW_inviter_order_station1':
+"""select AC.activity_id,activity_name,AC.activity_type
+  ,GS.*
+  ,RE.status,sum(O.orig_price/O.list_unit_price),count(1),count(DISTINCT O.uid)
+from ods.ods_wei_invite_friend_activity AC
+left join ods.ods_wei_invite_invitee_record RE on AC.activity_id = RE.activity_id
+left join (select 1 mer_type,stid mer_id,stname mer_name from ods.ods_wei_stations) GS
+on GS.mer_type = AC.merchant_type and  GS.mer_id= AC.merchant_id
+left join dw.dw_inspay_orders O
+on O.stid = GS.mer_id and O.uid = inviter_uid
+where RE.isvalid = 1
+and AC.merchant_id in (_i_)
+and O.batch_date >= date('_i_')
+and O.batch_date <= date('_i_')
+and inviter_uid in (select uid from dw.dw_inspay_orders where stid = GS.mer_id and batch_date > date('_i_') and batch_date < date('_i_') )
+group by AC.activity_id,RE.status ;
+"""
+,'DW_invitee30_station1':
+"""select AC.activity_id,activity_name,AC.activity_type
+  ,FROM_UNIXTIME(start_time-(end_time-start_time)) start_sub_1tw,FROM_UNIXTIME(start_time) starttime,FROM_UNIXTIME(end_time) endtime,FROM_UNIXTIME(end_time+30*24*3600) endtime_add30
+  ,GS.*
+  ,sum(O.orig_price/O.list_unit_price),count(1),count(DISTINCT O.uid),count(DISTINCT RE.uid)
+from ods.ods_wei_invite_friend_activity AC
+left join ods.ods_wei_invite_invitee_record RE on AC.activity_id = RE.activity_id
+left join (select 1 mer_type,stid mer_id,stname mer_name from ods.ods_wei_stations) GS
+on GS.mer_type = AC.merchant_type and  GS.mer_id= AC.merchant_id
+left join dw.dw_inspay_orders O
+on O.stid = GS.mer_id and O.uid = RE.uid and O.batch_date >= FROM_UNIXTIME(end_time)  and O.batch_date <= FROM_UNIXTIME(end_time+30*24*3600)
+where RE.isvalid = 1 and RE.status = 1
+and AC.merchant_id in (_i_)
+group by AC.activity_id;
+"""
