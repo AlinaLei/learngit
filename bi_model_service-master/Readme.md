@@ -14,7 +14,3 @@
 * [Flask中文指南](http://docs.jinkan.org/docs/flask/).
 * [Seaborn-02-颜色板控制](http://www.jianshu.com/p/25bfbca6fc0b).
 * [Seaborn-03-数据分布图](http://www.jianshu.com/p/efc9010c9940).
-
-
-
-* [阿宝要快点入门哦~，加油 (ง •̀灬•́)ง ](.html#a-minimal-application).http://docs.jinkan.org/docs/flask/quickstart
