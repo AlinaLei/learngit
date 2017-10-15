@@ -318,7 +318,7 @@ def v_table():
     return ss
 
 
-    @app.route("/task_mamt", methods=['GET', 'POST'])
+@app.route("/task_mamt", methods=['GET', 'POST'])
 @login_required
 def task_mamt():
     para = request.values.to_dict()
