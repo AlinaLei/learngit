@@ -330,6 +330,7 @@ def task_mamt():
     name = ["uname like '%%%s%%' " % para['name']] if 'name' in para else []
     wherec = ' and '.join(be + ed + tag + name)
     task_data = my.c_conn(MSSQLs_BI_R_ENV).getdata(wi.list_task % wherec)
+    print(task_data)
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
 if __name__ == "__main__":
