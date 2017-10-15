@@ -224,7 +224,8 @@ def task_thread(tid,con,cond):
     for ck, cv in cond.items():
         for c in re.findall('and +'+ck+"\S*_i_\S*",ex):
             conx = '' if (cv == '') else re.sub('_i_',cv,c)
-            ex = ex.replace(c,conx)
+            ex = ex.replace(r'%s' % c,conx)
+            print(c,conx)
     if group_para:
         group_c = ','.join([gk for gk,gv in group_para.items() if gv == '1'])
         for g in re.findall(wi.group_re,ex):
