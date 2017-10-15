@@ -182,6 +182,10 @@ class ms_():
         self.conn.commit()
         return rows
 
+    def getdata_dictslist(self, sql):
+        df = self.to_dataframe(sql)
+        return json.loads(df.to_json(orient='records'))
+
     def to_dataframe(self, sqls):
         df = pd.read_sql(sqls, self.conn)
         self.get_atable(sqls)

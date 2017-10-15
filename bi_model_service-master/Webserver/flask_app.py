@@ -86,8 +86,8 @@ def do_upgrade_crea(mye,ups,cres=''):
 def add_task(uid,uname,task_tag,task_cond):
     ins=wi.task_ins %(uid,uname,task_tag,task_cond)
     do_upgrade_crea(my,ins,wi.task_cres)
-    sel="SELECT max(id) from db2.dbo.dc_S2_taskinfo"
-    tid = my.c_conn(MSSQLs_BI_R_ENV).getdata(sel)[0][0]
+    sel="SELECT max(id) as maxid from db2.dbo.dc_S2_taskinfo"
+    tid = my.c_conn(MSSQLs_BI_R_ENV).getdata_dictslist(sel)[0]['maxid']
     my.quit()
     return tid
 
@@ -291,7 +291,7 @@ def sqlbs2(con):
 def sqlrestart(tid):
     my.c_conn(MYSQL_BI_RW_ENV)
     my.sql_engine('update db2.dbo.dc_S2_taskinfo set CreateTime=GETDATE() where id = %s' % tid)
-    taskinfo = my.getdata('select * from db2.dbo.dc_S2_taskinfo where id = %s' % tid)
+    taskinfo = my.getdata_dictslist('select * from db2.dbo.dc_S2_taskinfo where id = %s' % tid)
     con = taskinfo[0]['task_tag']
     cond = taskinfo[0]['task_cond']
     task_response = task_thread(tid,con,cond)
@@ -330,9 +330,7 @@ def task_mamt():
     tag = ["task_tag like '%%%s%%'" % para['tag']] if 'tag' in para else []
     name = ["uname like '%%%s%%' " % para['name']] if 'name' in para else []
     wherec = ' and '.join(be + ed + tag + name)
-    task_data = my.c_conn(MSSQLs_BI_R_ENV).to_dataframe(wi.list_task % wherec)
-    task_data = json.loads(task_data.to_json(orient='records'))
-
+    task_data = my.c_conn(MSSQLs_BI_R_ENV).getdata_dictslist(wi.list_task % wherec)
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
 if __name__ == "__main__":
