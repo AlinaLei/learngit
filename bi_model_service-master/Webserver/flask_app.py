@@ -47,11 +47,12 @@ class WebInstance():
     dpath="../.data"
     hql_log="/home/bi/gitpro/tmp/hql_log";log_num=0
     REF_url="http://%s:%s/shortcut/maindir/S2_sallocation_diff" %(WBASE['WEBserver'],WBASE['WEB_PORT'])
-    task_cres="""create table data_center.dc_S2_taskinfo (id INT AUTO_INCREMENT,uid int(8),uname varchar(24),task_tag varchar(34),task_cond varchar(3344),status int(3) default -1,CreateTime datetime,updateTime datetime,path varchar(333),cod char(4),explain1 text,explain2 text,PRIMARY KEY (id) );"""
-    task_ins="""insert into data_center.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',now())"""
-    task_upd="""update data_center.dc_S2_taskinfo set updateTime=now(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
-    q_task="select status,unix_timestamp(now())-unix_timestamp(CreateTime) dur,path,cod,explain1 from data_center.dc_S2_taskinfo where id=%s"
-    list_task="select *,unix_timestamp(updateTime)-unix_timestamp(CreateTime) dur from data_center.dc_S2_taskinfo where %s order by CreateTime desc"
+    #task_cres="""create table data_center.dc_S2_taskinfo (id INT AUTO_INCREMENT,uid int(8),uname varchar(24),task_tag varchar(34),task_cond varchar(3344),status int(3) default -1,CreateTime datetime,updateTime datetime,path varchar(333),cod char(4),explain1 text,explain2 text,PRIMARY KEY (id) );"""
+    task_cres = """create table db2.dbo.dc_S2_taskinfo (id INT identity(1,1),uid int,uname nvarchar(24),task_tag nvarchar(34),task_cond nvarchar(3344),status int default -1,CreateTime datetime,updateTime datetime,path nvarchar(333),cod char(4),explain1 nvarchar(2000),explain2 nvarchar(2000));"""
+    task_ins="""insert into db2.dbo.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',now())"""
+    task_upd="""update db2.dbo.dc_S2_taskinfo set updateTime=now(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
+    q_task="select status,unix_timestamp(now())-unix_timestamp(CreateTime) dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
+    list_task="select *,unix_timestamp(updateTime)-unix_timestamp(CreateTime) dur from db2.dbo.dc_S2_taskinfo where %s order by CreateTime desc"
 
     ln_cres="create table S2_logincount as select %s employeeid,'%s' ename,'%s' email,now() CreateTime,now() LastLoginTime,0 logincounts"
     ln_upd="update S2_logincount set LastLoginTime=now(),logincounts=logincounts+1%s where employeeid = %s "
@@ -72,7 +73,7 @@ class WebInstance():
 
 
 def do_upgrade_crea(mye,ups,cres=''):
-    mye.c_conn(MYSQL_BI_RW_ENV)
+    mye.c_conn(MSSQLs_BI_R_ENV)
     try: return mye.sql_engine().execute(ups).rowcount
     except Exception as err:
         print(err)
@@ -85,7 +86,7 @@ def do_upgrade_crea(mye,ups,cres=''):
 def add_task(uid,uname,task_tag,task_cond):
     ins=wi.task_ins %(uid,uname,task_tag,task_cond)
     do_upgrade_crea(my,ins,wi.task_cres)
-    sel="SELECT max(id) maxid from data_center.dc_S2_taskinfo"
+    sel="SELECT max(id) maxid from db2.dbo.dc_S2_taskinfo"
     tid = my.c_conn(MYSQL_BI_RW_ENV).getdata(sel)[0]['maxid']
     my.quit()
     return tid
@@ -288,8 +289,8 @@ def sqlbs2(con):
 @login_required
 def sqlrestart(tid):
     my.c_conn(MYSQL_BI_RW_ENV)
-    my.sql_engine('update data_center.dc_S2_taskinfo set CreateTime=now() where id = %s' % tid)
-    taskinfo = my.getdata('select * from data_center.dc_S2_taskinfo where id = %s' % tid)
+    my.sql_engine('update db2.dbo.dc_S2_taskinfo set CreateTime=now() where id = %s' % tid)
+    taskinfo = my.getdata('select * from db2.dbo.dc_S2_taskinfo where id = %s' % tid)
     con = taskinfo[0]['task_tag']
     cond = taskinfo[0]['task_cond']
     task_response = task_thread(tid,con,cond)
@@ -328,7 +329,7 @@ def task_mamt():
     tag = ["task_tag like '%%%s%%'" % para['tag']] if 'tag' in para else []
     name = ["uname like '%%%s%%' " % para['name']] if 'name' in para else []
     wherec = ' and '.join(be + ed + tag + name)
-    task_data = my.c_conn(MYSQL_BI_RW_ENV).getdata(wi.list_task % wherec)
+    task_data = my.c_conn(MSSQLs_BI_R_ENV).getdata(wi.list_task % wherec)
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
 if __name__ == "__main__":
