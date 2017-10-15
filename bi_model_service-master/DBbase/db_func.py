@@ -2,7 +2,7 @@ import re,datetime,time,pymysql,json,pymssql
 import pandas as pd
 from sqlalchemy import create_engine
 import sys
-sys.path.append('../.setting')
+sys.path.append('../.settings')
 import config
 
 
