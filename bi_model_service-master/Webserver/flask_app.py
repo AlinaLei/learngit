@@ -87,7 +87,7 @@ def add_task(uid,uname,task_tag,task_cond):
     ins=wi.task_ins %(uid,uname,task_tag,task_cond)
     do_upgrade_crea(my,ins,wi.task_cres)
     sel="SELECT max(id) maxid from db2.dbo.dc_S2_taskinfo"
-    tid = my.c_conn(MYSQL_BI_RW_ENV).getdata(sel)[0]['maxid']
+    tid = my.c_conn(MSSQLs_BI_R_ENV).getdata(sel)[0]['maxid']
     my.quit()
     return tid
 
