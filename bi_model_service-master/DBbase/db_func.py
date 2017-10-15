@@ -27,7 +27,7 @@ class my_():
         self.cset = ''
         self.c_conn(name=name)
 
-    def c_conn_my(self, name=1):  # change or create conn
+    def c_conn(self, name=1):  # change or create conn
         try:
             if name in config.AccessKey_dict:
                 self.db_dic.update(config.AccessKey_dict[name])
@@ -141,7 +141,7 @@ class ms_():
         self.cset = ''
         self.c_conn(name=name)
 
-    def c_conn_ms(self, name=1):  # change or create conn
+    def c_conn(self, name=1):  # change or create conn
         try:
             if name in config.AccessKey_dict:
                 self.db_dic.update(config.AccessKey_dict[name])
