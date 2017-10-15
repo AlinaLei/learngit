@@ -46,13 +46,13 @@ class my_():
             print(err)
             # self.c_conn(name)
 
-    def get_atable_my(self, sql):
+    def get_atable(self, sql):
         if self.table == '':
             RES = re.findall('from\s+(.*?)\s+', sql)
             if RES:
                 self.table = RES[0]
     
-    def getdata_my(self, sqls):
+    def getdata(self, sqls):
       if type(sqls) is list:
          for sql in sqls:
             self.cur.execute(sql)
@@ -63,13 +63,13 @@ class my_():
       self.conn.commit()
       return rows
 
-    def to_dataframe_my(self, sqls):
+    def to_dataframe(self, sqls):
         df = pd.read_sql(sqls,self.conn)
         self.get_atable(sqls)
         self.conn.commit()        
         return df
 
-    def df_upd_tosql_my(self, df, batch=666, table=''):
+    def df_upd_tosql(self, df, batch=666, table=''):
         if table == '':
             table = self.table
             if table == '':
@@ -87,7 +87,7 @@ class my_():
             df = df.drop(ind)
         return resu
 
-    def sql_engine_my(self, sqls=None, echo=False):
+    def sql_engine(self, sqls=None, echo=False):
         eng=create_engine(self.engs, echo=echo,encoding=self.db_dic['cset'])
         # eng.execute('SET NAMES utf8')
         # eng.execute('SET CHARACTER SET utf8')
@@ -98,7 +98,7 @@ class my_():
         else:
             return eng
 
-    def add_partition_gener_my(self,pname,pvalue,table='',type=1):
+    def add_partition_gener(self,pname,pvalue,table='',type=1):
         if table == '':
             table = self.table
             if table == '':
@@ -118,7 +118,7 @@ class my_():
                 # print(err)
                 pass
 
-    def quit_my(self):
+    def quit(self):
         try:
             self.cur.close()
             self.conn.close()
@@ -132,7 +132,7 @@ class my_():
 
 class ms_():
     def __init__(self, name):
-        self.db_dic = {'ho': '', 'pt': 1433, 'cset': 'utf8'}
+        self.db_dic = {'ho': '', 'pt': 1433, 'cset': 'utf-8'}
         self.conn = None
         self.cur = None
         self.engs = ''
@@ -148,9 +148,9 @@ class ms_():
             else:
                 return
 
-            self.conn = pymssql.connect(host=self.db_dic['ho'], user=self.db_dic['us'], passwd=self.db_dic['pwd']
-                                        , port=self.db_dic['pt'], db=self.db_dic['db'], charset=self.db_dic['cset'])
-            self.cur = self.conn.cursor(pymssql.cursors.DictCursor)
+            self.conn = pymssql.connect(server=self.db_dic['ho'], user=self.db_dic['us'], password=self.db_dic['pwd']
+                                        , port=self.db_dic['pt'], database=self.db_dic['db'], charset=self.db_dic['cset'])
+            self.cur = self.conn.cursor()
             self.engs = "mssql+pymssql://%s:%s@%s:%s/%s?charset=%s" % (self.db_dic['us'], self.db_dic['pwd']
                                                                        , self.db_dic['ho'], self.db_dic['pt'],
                                                                        self.db_dic['db'], self.db_dic['cset'])
@@ -164,13 +164,13 @@ class ms_():
             print(err)
             # self.c_conn(name)
 
-    def get_atable_ms(self, sql):
+    def get_atable(self, sql):
         if self.table == '':
             RES = re.findall('from\s+(.*?)\s+', sql)
             if RES:
                 self.table = RES[0]
 
-    def getdata_ms(self, sqls):
+    def getdata(self, sqls):
         if type(sqls) is list:
             for sql in sqls:
                 self.cur.execute(sql)
@@ -181,13 +181,13 @@ class ms_():
         self.conn.commit()
         return rows
 
-    def to_dataframe_ms(self, sqls):
+    def to_dataframe(self, sqls):
         df = pd.read_sql(sqls, self.conn)
         self.get_atable(sqls)
         self.conn.commit()
         return df
 
-    def df_upd_tosql_ms(self, df, batch=666, table=''):
+    def df_upd_tosql(self, df, batch=666, table=''):
         if table == '':
             table = self.table
             if table == '':
@@ -205,7 +205,7 @@ class ms_():
             df = df.drop(ind)
         return resu
 
-    def sql_engine_ms(self, sqls=None, echo=False):
+    def sql_engine(self, sqls=None, echo=False):
         eng = create_engine(self.engs, echo=echo, encoding=self.db_dic['cset'])
         # eng.execute('SET NAMES utf8')
         # eng.execute('SET CHARACTER SET utf8')
@@ -216,7 +216,7 @@ class ms_():
         else:
             return eng
 
-    def add_partition_gener_ms(self, pname, pvalue, table='', type=1):
+    def add_partition_gener(self, pname, pvalue, table='', type=1):
         if table == '':
             table = self.table
             if table == '':
@@ -236,7 +236,7 @@ class ms_():
                 # print(err)
                 pass
 
-    def quit_ms(self):
+    def quit(self):
         try:
             self.cur.close()
             self.conn.close()
