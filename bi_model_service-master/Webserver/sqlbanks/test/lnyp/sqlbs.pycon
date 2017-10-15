@@ -1,0 +1,12 @@
+'users_information':
+"""SELECT distinct sm.user_name as '用户名',sm.addtime as '注册时间'
+   from hk_storemaster sm
+   inner join hk_cmcc_gdmobile cmcc
+             on substring( sm.user_name,1,7) = cmcc.mobilesection and cmcc.mobilearea = '_i_'
+   WHERE NOT EXISTS (
+					 select user_name from vpclub_report.dbo.Import_Store_Mast b where sm.user_name=b.user_name and sm.appid=b.appid and sm.appid=100000058
+							 )
+	and sm.appid=100000058
+	and convert(varchar(10),sm.addtime,23) >= '_i_'
+	and convert(varchar(10),sm.addtime,23) <= '_i_'
+"""
