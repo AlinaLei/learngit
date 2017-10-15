@@ -149,15 +149,12 @@ class ms_():
                 self.db_dic.update(config.AccessKey_dict[name])
             else:
                 return
-            print(self.db_dic)
             self.conn = pymssql.connect(server=self.db_dic['ho'], user=self.db_dic['us'], password=self.db_dic['pwd']
                                         , port=self.db_dic['pt'], database=self.db_dic['db'], charset=self.db_dic['cset'])
-            print(self.conn)
             self.cur = self.conn.cursor()
             self.engs = "mssql+pymssql://%s:%s@%s:%s/%s?charset=%s" % (self.db_dic['us'], self.db_dic['pwd']
                                                                        , self.db_dic['ho'], self.db_dic['pt'],
                                                                        self.db_dic['db'], self.db_dic['cset'])
-            print(self.cur)
             self.sh_for_load = 'mssql -h%s -u%s -p%s -P%s %s --local-infile=1 -e "%%s" ' % (self.db_dic['ho']
                                                                                             , self.db_dic['us'],
                                                                                             self.db_dic['pwd'],

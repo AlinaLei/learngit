@@ -332,6 +332,7 @@ def task_mamt():
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
 if __name__ == "__main__":
-    my = my_(MYSQL_BI_RW_ENV)
+    # my = my_(MYSQL_BI_RW_ENV)
+    my = ms_(MSSQLs_BI_R_ENV)
     wi = WebInstance()
     app.run(port=int(WBASE['WEB_PORT']), host='0.0.0.0', debug=True, threaded=True)
