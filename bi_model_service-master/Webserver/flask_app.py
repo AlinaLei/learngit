@@ -51,7 +51,7 @@ class WebInstance():
     task_cres = """create table db2.dbo.dc_S2_taskinfo (id INT identity(1,1),uid int,uname nvarchar(24),task_tag nvarchar(34),task_cond nvarchar(3344),status int default -1,CreateTime datetime,updateTime datetime,path nvarchar(333),cod char(4),explain1 nvarchar(2000),explain2 nvarchar(2000));"""
     task_ins="""insert into db2.dbo.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',getdate())"""
     task_upd="""update db2.dbo.dc_S2_taskinfo set updateTime=getdate(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
-    q_task="select status,datediff(second,CreateTime,getdate()) dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
+    q_task="select status,datediff(second,CreateTime,getdate()) as dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
     list_task="select *,datediff(second,CreateTime,updateTime) as dur from db2.dbo.dc_S2_taskinfo where %s order by CreateTime desc"
 
     ln_cres="create table S2_logincount as select %s employeeid,'%s' ename,'%s' email,now() CreateTime,now() LastLoginTime,0 logincounts"
@@ -324,8 +324,8 @@ def task_mamt():
     para = request.values.to_dict()
     if para == {}:
         return render_template("task_Management.html",base_dict=WBASE,user=current_user.name)
-    be = ['CreateTime>=' + para['be'] if 'be' in para else wi.yesterday]
-    ed = ['date(CreateTime)<=' + para['ed']] if 'ed' in para else []
+    be = ['convert(varchar(8),CreateTime,112)>=' + para['be'] if 'be' in para else wi.yesterday]
+    ed = ['convert(varchar(8),CreateTime,112)<=' + para['ed']] if 'ed' in para else []
     tag = ["task_tag like '%%%s%%'" % para['tag']] if 'tag' in para else []
     name = ["uname like '%%%s%%' " % para['name']] if 'name' in para else []
     wherec = ' and '.join(be + ed + tag + name)
