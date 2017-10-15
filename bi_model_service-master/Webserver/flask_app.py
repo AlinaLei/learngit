@@ -290,7 +290,7 @@ def sqlbs2(con):
 @login_required
 def sqlrestart(tid):
     my.c_conn(MYSQL_BI_RW_ENV)
-    my.sql_engine('update db2.dbo.dc_S2_taskinfo set CreateTime=now() where id = %s' % tid)
+    my.sql_engine('update db2.dbo.dc_S2_taskinfo set CreateTime=GETDATE() where id = %s' % tid)
     taskinfo = my.getdata('select * from db2.dbo.dc_S2_taskinfo where id = %s' % tid)
     con = taskinfo[0]['task_tag']
     cond = taskinfo[0]['task_cond']
