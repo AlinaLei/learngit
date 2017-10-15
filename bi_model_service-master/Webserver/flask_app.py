@@ -222,7 +222,8 @@ def task_thread(tid,con,cond):
     # ex = re.sub('\n',' ',ex)
     group_para = cond.pop('group by ') if 'group by ' in cond.keys() else []
     for ck, cv in cond.items():
-        for c in re.findall(r'and +'+ck+"\S*_i_\S*",ex):
+        print(ck, cv)
+        for c in re.findall(r'and '+ck+"\S*_i_\S*",ex):
             conx = '' if (cv == '') else re.sub('_i_', cv, c)
             ex = ex.replace(r'%s' % c,conx)
             print(c,conx)

@@ -7,6 +7,6 @@
 					 select user_name from vpclub_report.dbo.Import_Store_Mast b where sm.user_name=b.user_name and sm.appid=b.appid and sm.appid=100000058
 							 )
 	and sm.appid=100000058
-	and convert(varchar(10),sm.addtime,23) >= '_i_'
-	and convert(varchar(10),sm.addtime,23) <= '_i_'
+	and sm.addtime >= '_i_'
+	and sm.addtime < '_i_'
 """
