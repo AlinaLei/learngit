@@ -51,8 +51,8 @@ class WebInstance():
     task_cres = """create table db2.dbo.dc_S2_taskinfo (id INT identity(1,1),uid int,uname nvarchar(24),task_tag nvarchar(34),task_cond nvarchar(3344),status int default -1,CreateTime datetime,updateTime datetime,path nvarchar(333),cod char(4),explain1 nvarchar(2000),explain2 nvarchar(2000));"""
     task_ins="""insert into db2.dbo.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',getdate())"""
     task_upd="""update db2.dbo.dc_S2_taskinfo set updateTime=getdate(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
-    q_task="select status,unix_timestamp(now())-unix_timestamp(CreateTime) dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
-    list_task="select *,unix_timestamp(updateTime)-unix_timestamp(CreateTime) dur from db2.dbo.dc_S2_taskinfo where %s order by CreateTime desc"
+    q_task="select status,datediff(second,CreateTime,getdate()) dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
+    list_task="select *,datediff(second,CreateTime,updateTime) as dur from db2.dbo.dc_S2_taskinfo where %s order by CreateTime desc"
 
     ln_cres="create table S2_logincount as select %s employeeid,'%s' ename,'%s' email,now() CreateTime,now() LastLoginTime,0 logincounts"
     ln_upd="update S2_logincount set LastLoginTime=now(),logincounts=logincounts+1%s where employeeid = %s "
@@ -86,7 +86,7 @@ def do_upgrade_crea(mye,ups,cres=''):
 def add_task(uid,uname,task_tag,task_cond):
     ins=wi.task_ins %(uid,uname,task_tag,task_cond)
     do_upgrade_crea(my,ins,wi.task_cres)
-    sel="SELECT max(id) maxid from db2.dbo.dc_S2_taskinfo"
+    sel="SELECT max(id) as maxid from db2.dbo.dc_S2_taskinfo"
     tid = my.c_conn(MSSQLs_BI_R_ENV).getdata(sel)[0]['maxid']
     my.quit()
     return tid
@@ -318,7 +318,7 @@ def v_table():
     return ss
 
 
-@app.route("/task_mamt", methods=['GET', 'POST'])
+    @app.route("/task_mamt", methods=['GET', 'POST'])
 @login_required
 def task_mamt():
     para = request.values.to_dict()
