@@ -330,8 +330,7 @@ def task_mamt():
     name = ["uname like '%%%s%%' " % para['name']] if 'name' in para else []
     wherec = ' and '.join(be + ed + tag + name)
     task_data = my.c_conn(MSSQLs_BI_R_ENV).to_dataframe(wi.list_task % wherec)
-    print(task_data, )
-    print(task_data.to_list())
+    task_data = json.loads(task_data.to_json(orient='records'))
 
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
