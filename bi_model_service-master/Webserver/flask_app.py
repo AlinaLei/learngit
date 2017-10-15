@@ -49,8 +49,8 @@ class WebInstance():
     REF_url="http://%s:%s/shortcut/maindir/S2_sallocation_diff" %(WBASE['WEBserver'],WBASE['WEB_PORT'])
     #task_cres="""create table data_center.dc_S2_taskinfo (id INT AUTO_INCREMENT,uid int(8),uname varchar(24),task_tag varchar(34),task_cond varchar(3344),status int(3) default -1,CreateTime datetime,updateTime datetime,path varchar(333),cod char(4),explain1 text,explain2 text,PRIMARY KEY (id) );"""
     task_cres = """create table db2.dbo.dc_S2_taskinfo (id INT identity(1,1),uid int,uname nvarchar(24),task_tag nvarchar(34),task_cond nvarchar(3344),status int default -1,CreateTime datetime,updateTime datetime,path nvarchar(333),cod char(4),explain1 nvarchar(2000),explain2 nvarchar(2000));"""
-    task_ins="""insert into db2.dbo.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',now())"""
-    task_upd="""update db2.dbo.dc_S2_taskinfo set updateTime=now(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
+    task_ins="""insert into db2.dbo.dc_S2_taskinfo(uid,uname,task_tag,task_cond,CreateTime) values(%s,'%s','%s','%s',getdate())"""
+    task_upd="""update db2.dbo.dc_S2_taskinfo set updateTime=getdate(),status=%s,path='%s',cod='%s',explain1='%s' where id = %s """
     q_task="select status,unix_timestamp(now())-unix_timestamp(CreateTime) dur,path,cod,explain1 from db2.dbo.dc_S2_taskinfo where id=%s"
     list_task="select *,unix_timestamp(updateTime)-unix_timestamp(CreateTime) dur from db2.dbo.dc_S2_taskinfo where %s order by CreateTime desc"
 
