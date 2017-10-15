@@ -134,7 +134,7 @@ class my_():
 
 class ms_():
     def __init__(self, name):
-        self.db_dic = {'ho': '', 'pt': 1433, 'cset': 'utf-8'}
+        self.db_dic = {'ho': '', 'pt': 1433, 'cset': 'UTF-8'}
         self.conn = None
         self.cur = None
         self.engs = ''
