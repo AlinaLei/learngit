@@ -10,3 +10,52 @@
 	and sm.addtime >= '_i_'
 	and sm.addtime < '_i_'
 """
+,'users_orders_information':
+"""
+  select distinct o.order_no as 订单号,
+		--os.sub_order_no as 子订单号,
+		og.goods_id as 商品ID,
+         og.goods_title as 商品名称,
+		 case a.isTiedSale WHEN 1 then '是' else '否' end as 是否流量包捆绑商品,
+		 og.goods_price as 商品卖价,
+		 J.DisplayName AS 商家,
+		 og.quantity as 商品数量,
+		 og.fav_profit as 优惠券金额,
+		 (case when g.favtype=7 then  g.fav_profit else 0 end) as '电子券支付金额',
+		 o.payable_amount as 订单金额,
+		 o.telphone as 支付电话,
+		 s.storename as 店铺名称,
+		 ss.user_name as 店主号码,
+		 case when sm.addtime is null then '未注册用户'
+		     else '注册用户' end  as 注册与否,
+         cmcc.mobilearea as 号码归属地,
+		 os.payment_time as 支付时间,
+		 os.receipt_time as 确认收货时间,
+		 os.receiver_tel as 收货人号码,
+		 os.receiver_username as 收货人,
+				case when og.is_drawback is null then ''
+	when os.returnstatus = 4 or ISNULL(os.is_drawback,0)= 2 or (ISNULL(os.is_drawback,0)= 1 and ISNULL(og.is_drawback,0)=1 and ISNULL(d.drawback_state,0)=12) then '退款完成'
+	when os.returnstatus = 5 or ISNULL(os.is_drawback,0)= 3 or (ISNULL(os.is_drawback,0)= 1 and og.is_drawback= 0 ) then '拒绝退款'
+	when os.returnstatus =1 or ISNULL(os.is_drawback,0)=1  then '退款中'
+	when (os.returnstatus >= 2 and os.returnstatus < 4) or ISNULL(os.is_drawback,0)=1 then '退款中'
+	else '' end    as '退货状态'
+  from hk_orders_sub os
+  inner join hk_order_goods og on os.sub_order_no=og.suborderno
+  left join  hk_orders o  on o.order_no=os.order_No
+  left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+  left join hk_article a on og.goods_id=a.id and a.appid=100000058
+  left join hk_stores s on o.storeid=s.id
+  left join hk_storemaster ss on s.id=ss.storeid
+  left join hk_drawback d on d.sub_order_no=os.sub_order_no
+  LEFT JOIN HK_JIGOU J ON OS.JGID=J.ID
+  inner join hk_cmcc_gdmobile cmcc
+        on substring(o.telphone,1,7) = cmcc.mobilesection and cmcc.mobilearea='_i_'
+left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
+  where os.appid=100000058
+  and os.payment_status=2
+  and os.status in (2,3)
+  and left(os.order_no,3)<>'bvt'
+  and isnull(os.extType,0)<>2
+  and convert(varchar(10),o.add_time,23)<='_i_'
+ and convert(varchar(10),o.add_time,23)>='_i_'
+"""
