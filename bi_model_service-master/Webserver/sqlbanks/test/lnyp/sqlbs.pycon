@@ -11,9 +11,7 @@
 	and sm.addtime < '_i_'
 """
 ,'users_orders_information':
-"""
-  select distinct o.order_no as '订单号',
-		--os.sub_order_no as '子订单号',
+"""select distinct o.order_no as '订单号',
 		og.goods_id as '商品ID',
          og.goods_title as '商品名称',
 		 case a.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品',
@@ -60,8 +58,7 @@ left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
  and os.createtime >= '_i_'
 """
 ,'storemaster_orders':
-"""
-select  o.order_no as '订单号',
+"""select  o.order_no as '订单号',
         j.displayname as '商家',
         og.goods_title as '商品名称',
 		case aa.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品(流量捆绑商品不参与营销补贴)',
