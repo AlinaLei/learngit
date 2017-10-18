@@ -10,7 +10,7 @@
 	and sm.addtime >= '_i_'
 	and sm.addtime < '_i_'
 """
-,'users_orders_information':
+,'users_orders':
 """select distinct o.order_no as '订单号',
 		og.goods_id as '商品ID',
          og.goods_title as '商品名称',
@@ -53,7 +53,6 @@ left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
   and os.payment_status=2
   and os.status in (2,3)
   and left(os.order_no,3)<>'bvt'
-  and isnull(os.extType,0)<>2
   and os.createtime < '_i_'
  and os.createtime >= '_i_'
 """
@@ -98,7 +97,44 @@ and os.payment_status=2
 and os.status in (2,3)
 and left(o.order_no,3)<>'bvt'
 and o.deleted=0
-and isnull(os.extType,0)<>2
 and os.createtime < '_i_'
 and os.createtime >= '_i_'
+"""
+,'valid_users':
+"""select  c.telphone as '有效用户号码' ,c.s as '消费金额',c.o as '消费次数'
+		from
+		(select a.telphone,sum(b.goods_price*b.quantity+isnull(b.fav_profit,0)) s,count(a.order_no) o
+		from hk_orders a
+		left join hk_order_goods b  on a.order_no=b.orderNo
+		left join hk_orders_sub os on os.sub_order_no=b.suborderno
+		inner JOIN hk_cmcc_gdmobile m ON (LEFT(a.telphone,7)=m.MobileSection and m.mobilearea = '_i_')
+		where
+		 a.add_time>='2017-01-01 00:00:00.000'   --此处代表从2017年开始计数
+		and a.add_time <= '_i_'  --此处为当日时间限制
+		and os.payment_status>=2
+		and a.deleted=0
+		and os.appid=100000058
+		group by a.telphone) c
+		where c.s>=30
+"""
+,'city_seller':
+"""select j1.id as '商家ID',j1.displayname as '商家名称',j1.create_time as '创建时间',isnull(j2.displayname,'全省') as '所属机构'
+from hk_jigou j1
+left join hk_jigou j2 on j2.id=j1.parentid
+where j1.orgtype=2
+and j1.appid=100000058
+and j1.DisplayName not like '%特产汇%'
+and j1.DisplayName not like '%专区%'
+and j1.DisplayName not like '%测试%'
+and j1.id not in (196446,196454,196455,197567,272684,272914,273128,273270,276938,276954,277652,280413,285649,286399,286894,287391,290677,292446,293195,294247)
+and j2.DisplayName like '%_i_%'
+"""
+,'product_PV':
+"""select product_id, count(id) as PV,count(distinct request_ip) as UV
+from vpclubcloud_logs.dbo.hk_lnyp_productlog
+where appid=100000058
+and product_id in '_i_'
+and add_time >= '_i_'
+and add_time < '_i_'
+group by product_id
 """
