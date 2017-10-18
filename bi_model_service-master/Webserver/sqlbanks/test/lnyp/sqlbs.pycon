@@ -133,7 +133,7 @@ and j2.DisplayName like '%_i_%'
 """select product_id, count(id) as PV,count(distinct request_ip) as UV
 from vpclubcloud_logs.dbo.hk_lnyp_productlog
 where appid=100000058
-and product_id in ('_i_')
+and product_id = '_i_'
 and add_time >= '_i_'
 and add_time < '_i_'
 group by product_id
