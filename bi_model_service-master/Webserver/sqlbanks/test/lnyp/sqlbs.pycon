@@ -56,8 +56,8 @@ left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
   and os.status in (2,3)
   and left(os.order_no,3)<>'bvt'
   and isnull(os.extType,0)<>2
-  and o.add_time < '_i_'
- and o.add_time >= '_i_'
+  and os.createtime < '_i_'
+ and os.createtime >= '_i_'
 """
 ,'storemaster_orders':
 """
@@ -102,6 +102,6 @@ and os.status in (2,3)
 and left(o.order_no,3)<>'bvt'
 and o.deleted=0
 and isnull(os.extType,0)<>2
-and o.add_time < '_i_'
-and o.add_time >= '_i_'
+and os.createtime < '_i_'
+and os.createtime >= '_i_'
 """
