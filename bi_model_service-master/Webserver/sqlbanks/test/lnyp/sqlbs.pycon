@@ -109,8 +109,8 @@ and os.createtime >= '_i_'
 		left join hk_orders_sub os on os.sub_order_no=b.suborderno
 		inner JOIN hk_cmcc_gdmobile m ON (LEFT(a.telphone,7)=m.MobileSection and m.mobilearea = '_i_')
 		where
-		 a.add_time>='2017-01-01 00:00:00.000'   --此处代表从2017年开始计数
-		and a.add_time <= '_i_'  --此处为当日时间限制
+		 a.add_time>='2017-01-01 00:00:00.000'
+		and a.add_time <= '_i_'  
 		and os.payment_status>=2
 		and a.deleted=0
 		and os.appid=100000058
