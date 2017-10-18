@@ -59,12 +59,12 @@ left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
   and o.add_time < '_i_'
  and o.add_time >= '_i_'
 """
-,'storemaster_orders_information':
+,'storemaster_orders':
 """
 select  o.order_no as 订单号,
         j.displayname as 商家,
         og.goods_title as 商品名称,
-		 case aa.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品(流量捆绑商品不参与营销补贴)',
+		case aa.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品(流量捆绑商品不参与营销补贴)',
 		og.goods_price as 商品卖价,
 		og.quantity as 商品数量,
 		o.order_amount as 订单金额,
@@ -87,7 +87,6 @@ select  o.order_no as 订单号,
 	when os.returnstatus =1 or ISNULL(os.is_drawback,0)=1  then '退款中'
 	when (os.returnstatus >= 2 and os.returnstatus < 4) or ISNULL(os.is_drawback,0)=1 then '退款中'
 	else '' end    as '退货状态'
-	--select count(distinct o.order_no) 订单数,sum(og.goods_price * og.quantity+isnull(og.fav_profit,0)) 订单金额
 from hk_orders o
 left join hk_order_goods og on o.order_no=og.orderno
 left join hk_orders_sub os on og.suborderno=os.sub_order_no
