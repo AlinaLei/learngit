@@ -49,13 +49,60 @@
   left join hk_drawback d on d.sub_order_no=os.sub_order_no
   LEFT JOIN HK_JIGOU J ON OS.JGID=J.ID
   inner join hk_cmcc_gdmobile cmcc
-        on substring(o.telphone,1,7) = cmcc.mobilesection and cmcc.mobilearea='_i_'
+        on substring(o.telphone,1,7) = cmcc.mobilesection and cmcc.mobilearea = '_i_'
 left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
   where os.appid=100000058
   and os.payment_status=2
   and os.status in (2,3)
   and left(os.order_no,3)<>'bvt'
   and isnull(os.extType,0)<>2
-  and convert(varchar(10),o.add_time,23)<='_i_'
- and convert(varchar(10),o.add_time,23)>='_i_'
+  and o.add_time < '_i_'
+ and o.add_time >= '_i_'
+"""
+,'storemaster_orders_information':
+"""
+select  o.order_no as 订单号,
+        j.displayname as 商家,
+        og.goods_title as 商品名称,
+		 case aa.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品(流量捆绑商品不参与营销补贴)',
+		og.goods_price as 商品卖价,
+		og.quantity as 商品数量,
+		o.order_amount as 订单金额,
+		(case when g.favtype=7 then  g.fav_profit else 0 end) as '电子券支付金额(支付部分不参与营销补贴)',
+		o.telphone as 支付电话,
+		o.add_time as 下单时间,
+		os.payment_time as 支付时间,
+	    os.receiver_username as 收货人,
+		o.province as 收货省,
+		o.area as 收货市,
+		o.address as 收货地址,
+		os.express_no as 物流单号,
+		o.share_masterid as 分享人ID,
+		s.id 店主ID,
+		s.user_name as  店主号码,
+		cg.MobileArea 店主所属地市,
+		case when og.is_drawback is null then ''
+	when os.returnstatus = 4 or ISNULL(os.is_drawback,0)= 2 or (ISNULL(os.is_drawback,0)= 1 and ISNULL(og.is_drawback,0)=1 and ISNULL(d.drawback_state,0)=12) then '退款完成'
+	when os.returnstatus = 5 or ISNULL(os.is_drawback,0)= 3 or (ISNULL(os.is_drawback,0)= 1 and og.is_drawback= 0 ) then '拒绝退款'
+	when os.returnstatus =1 or ISNULL(os.is_drawback,0)=1  then '退款中'
+	when (os.returnstatus >= 2 and os.returnstatus < 4) or ISNULL(os.is_drawback,0)=1 then '退款中'
+	else '' end    as '退货状态'
+	--select count(distinct o.order_no) 订单数,sum(og.goods_price * og.quantity+isnull(og.fav_profit,0)) 订单金额
+from hk_orders o
+left join hk_order_goods og on o.order_no=og.orderno
+left join hk_orders_sub os on og.suborderno=os.sub_order_no
+left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+left join hk_article aa on og.goods_id=aa.id and aa.appid=100000058
+left join hk_jigou j on os.jgid=j.id
+left join hk_storemaster s on o.storeid=s.Storeid
+left join hk_drawback d on d.sub_order_no=os.sub_order_no
+inner join hk_cmcc_gdmobile cg on left(s.user_name,7)=cg.MobileSection and cg.MobileArea = '_i_'
+where os.appid=100000058
+and os.payment_status=2
+and os.status in (2,3)
+and left(o.order_no,3)<>'bvt'
+and o.deleted=0
+and isnull(os.extType,0)<>2
+and o.add_time < '_i_'
+and o.add_time >= '_i_'
 """
