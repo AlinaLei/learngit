@@ -254,7 +254,7 @@ def task_thread(tid,con,cond):
     elif con[:2] == "H_":
         log_file = "%s_%s" %(wi.hql_log,wi.log_num)
         wi.log_num += 1
-        rdir = "/data/home/hanxuechen/hqlbase/"+str(random.randint(0,0x1000))+".hql2"
+        rdir = "/data/home/Alina/hqlbase/"+str(random.randint(0,0x1000))+".hql2"
         status, res = my.hive_sql2(ex,tmpf=log_file,tos=" > "+path_x,rdir=rdir)
         if status == 0:
             cod = "utf8"
