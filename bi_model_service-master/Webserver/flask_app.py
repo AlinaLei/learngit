@@ -258,6 +258,16 @@ def task_thread(tid,con,cond):
         status, res = my.hive_sql2(ex,tmpf=log_file,tos=" > "+path_x,rdir=rdir)
         if status == 0:
             cod = "utf8"
+    elif con[:]=="hxb":
+        try:
+            my.c_conn('hxb').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
+        except Exception as err:
+            status, res = (1, ';'.join(err.args).replace("'",'|'))
+    elif con[:]=="hjqs":
+        try:
+            my.c_conn('hjqs').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
+        except Exception as err:
+            status, res = (1, ';'.join(err.args).replace("'",'|'))
     else:
         # status, res = subprocess.getstatusoutput("""mysql -h100.115.75.20 -uweicheche_data -pW1Pcxp7di0YBIdu5 bimodels -e "%s" > %s """ %(ex,path_x))
         try:
