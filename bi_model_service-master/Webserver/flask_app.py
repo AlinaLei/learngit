@@ -259,12 +259,12 @@ def task_thread(tid,con,cond):
         status, res = my.hive_sql2(ex,tmpf=log_file,tos=" > "+path_x,rdir=rdir)
         if status == 0:
             cod = "utf8"
-    if con[:]=="hxb":
+    if con[:3]=="hxb":
         try:
             my.c_conn('hxb').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
-    if con[:]=="hjqs":
+    if con[:3]=="hqj":
         try:
             my.c_conn('hjqs').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:

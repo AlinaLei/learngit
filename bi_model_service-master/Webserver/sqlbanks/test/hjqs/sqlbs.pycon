@@ -1,4 +1,4 @@
-'user_information':
+'xqj_user_information':
 """SELECT convert(varchar(10),sm.addtime,23) as '注册日期',
 		sm.user_name as '注册用户',
 		case when isnull(sm.userCode,0)='12345677' then '直接导入为注册用户'
