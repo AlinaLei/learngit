@@ -264,7 +264,7 @@ def task_thread(tid,con,cond):
             my.c_conn('hxb').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
-    if con[:3]=="hqj":
+    if con[:3]=="xqj":
         try:
             my.c_conn('hjqs').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
