@@ -268,11 +268,13 @@ def task_thread(tid,con,cond):
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     if con[:]=="hjqs":
+        print(con[:])
         try:
             my.c_conn('hjqs').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     else:
+        print(con[:])
         # status, res = subprocess.getstatusoutput("""mysql -h100.115.75.20 -uweicheche_data -pW1Pcxp7di0YBIdu5 bimodels -e "%s" > %s """ %(ex,path_x))
         try:
             my.c_conn(MSSQLs_BI_R_ENV).to_dataframe(ex).to_csv(path_x, sep='\t', index=False)
