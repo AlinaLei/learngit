@@ -236,25 +236,23 @@ def task_thread(tid,con,cond):
             if g in grb_ass:
                 ex = ex.replace(grb_ass[g], ' ')
     print("ex!!!!!::::", ex, current_user, tid, con, cond)
+    print(con[:])
 
     path_x = '%s/%s' %(wi.dpath,tid)
     cod = "utf8"
     status, res = (0, '-')
     if con[:2] == "DW":
-        print(con[:2])
         # status, res = subprocess.getstatusoutput("""mysql -h100.99.107.242 -uweicheche_data -pW1Pcxp7di0YBIdu5 bimodels -e "%s" > %s """ %(ex,path_x))
         try:
             my.c_conn(MYSQL_BI_RW_ENV).to_dataframe(ex).to_csv(path_x,sep='\t')
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     if con[:3] == 'WOB':
-        print(con[:3])
         try:
             my.c_conn(MYSQL_PRODUCT_R_ENV).to_dataframe(ex).to_csv(path_x,sep='\t')
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     elif con[:2] == "H_":
-        print(con[:2])
         log_file = "%s_%s" %(wi.hql_log,wi.log_num)
         wi.log_num += 1
         rdir = "/data/home/Alina/hqlbase/"+str(random.randint(0,0x1000))+".hql2"
@@ -262,19 +260,16 @@ def task_thread(tid,con,cond):
         if status == 0:
             cod = "utf8"
     if con[:]=="hxb":
-        print(con[:])
         try:
             my.c_conn('hxb').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     if con[:]=="hjqs":
-        print(con[:])
         try:
             my.c_conn('hjqs').to_dataframe(ex).to_csv(path_x,sep='\t',index=False)
         except Exception as err:
             status, res = (1, ';'.join(err.args).replace("'",'|'))
     else:
-        print(con[:])
         # status, res = subprocess.getstatusoutput("""mysql -h100.115.75.20 -uweicheche_data -pW1Pcxp7di0YBIdu5 bimodels -e "%s" > %s """ %(ex,path_x))
         try:
             my.c_conn(MSSQLs_BI_R_ENV).to_dataframe(ex).to_csv(path_x, sep='\t', index=False)
