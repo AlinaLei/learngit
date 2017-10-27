@@ -103,7 +103,7 @@ and os.createtime >= '_i_'
 ,'ln_valid_users':
 """select  c.telphone as '有效用户号码' ,c.s as '消费金额',c.o as '消费次数'
 		from
-		(select a.telphone,sum(b.goods_price*b.quantity+isnull(b.fav_profit,0)) s,count(a.order_no) o
+		(select a.telphone,sum(b.goods_price*b.quantity) s,count(a.order_no) o
 		from hk_orders a
 		left join hk_order_goods b  on a.order_no=b.orderNo
 		left join hk_orders_sub os on os.sub_order_no=b.suborderno
