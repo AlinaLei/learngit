@@ -1,0 +1,13 @@
+'hxb_user_information':
+"""SELECT convert(varchar(10),sm.addtime,23) as '注册日期',
+		sm.user_name as '注册用户',
+		case when isnull(sm.userCode,0)='12345677' then '直接导入为注册用户'
+		     when isnull(sm.userCode,0)='12345688' then '未登录下单自动注册用户'
+		     else '真实注册用户'
+		end as '用户类型'
+FROM hk_StoreMaster sm left join hk_moblie_region mr on left(sm.user_name,7)=mr.region_code
+WHERE appid='100000060'
+and mr.region_name = '_i_'
+and sm.addtime >= '_i_'
+and sm.addtime < '_i_'
+"""
