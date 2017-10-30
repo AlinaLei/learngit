@@ -328,6 +328,7 @@ def v_table():
     res, errs = proc.communicate(timeout=15)
     #red = res.decode().split('\n')
     lines = [line.split("\t") for line in str(res,cod).split("\n")[:-1]] if errs is None else []
+    print(lines)
     ss = render_template("v_tab_uu.html", base_dict=WBASE, lines=lines, xlsn=pat, tas=wi.tas)
     return ss
 
