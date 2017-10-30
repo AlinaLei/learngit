@@ -350,7 +350,6 @@ def task_mamt():
 @login_required
 def bi_reshape():
     print("successful")
-    print('post')
 
 if __name__ == "__main__":
     # my = my_(MYSQL_BI_RW_ENV)
