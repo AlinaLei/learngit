@@ -5,6 +5,7 @@ import flask
 from flask import Flask,request,session,render_template,url_for,redirect
 from flask_login import *
 import sys
+sys.setdefaultencoding('utf8')
 sys.path.append('../DBbase')
 from db_func import *
 from hcomponents import *
@@ -346,10 +347,6 @@ def task_mamt():
     task_data = my.c_conn(MSSQLs_BI_R_ENV).getdata_dictslist(wi.list_task % wherec)
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
 
-@app.route("/bi_reshape",methods=['POST'])
-@login_required
-def bi_reshape():
-    print("successful")
 
 if __name__ == "__main__":
     # my = my_(MYSQL_BI_RW_ENV)
