@@ -326,10 +326,11 @@ def v_table():
     proc = subprocess.Popen("/usr/bin/head -n 999 "+pat, shell=True, stdout=subprocess.PIPE)
     cod = "utf8" if cod is None else cod
     res, errs = proc.communicate(timeout=15)
-    #red = res.decode().split('\n')
+
     lines = [line.split("\t") for line in str(res,cod).split("\n")[:-1]] if errs is None else []
     print(lines)
-    ss = render_template("v_tab_uu.html", base_dict=WBASE, lines=lines, xlsn=pat, tas=wi.tas)
+    # ss = render_template("v_tab_uu.html", base_dict=WBASE, lines=lines, xlsn=pat, tas=wi.tas)
+    ss = render_template("v_tab_uu.html")
     return ss
 
 
