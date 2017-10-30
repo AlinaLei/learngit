@@ -5,7 +5,6 @@ import flask
 from flask import Flask,request,session,render_template,url_for,redirect
 from flask_login import *
 import sys
-sys.setdefaultencoding('utf8')
 sys.path.append('../DBbase')
 from db_func import *
 from hcomponents import *
