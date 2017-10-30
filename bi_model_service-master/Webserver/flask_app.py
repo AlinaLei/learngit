@@ -12,7 +12,7 @@ sys.path.append('../.settings')
 from config import *
 sys.path.append('../predict')
 from simple_func_backp import *
-
+import pandas as pd
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?R1'
 login_manager = LoginManager()
@@ -344,6 +344,16 @@ def task_mamt():
     wherec = ' and '.join(be + ed + tag + name)
     task_data = my.c_conn(MSSQLs_BI_R_ENV).getdata_dictslist(wi.list_task % wherec)
     return render_template("task_Management.html", base_dict=WBASE, task_data=task_data, user=current_user.name)
+
+@app.route("/bi_reshape",methods=['GET','POST'])
+@login_required
+def bi_reshape():
+    print("successful")
+    print('GET')
+    print('POST')
+
+
+
 
 if __name__ == "__main__":
     # my = my_(MYSQL_BI_RW_ENV)
