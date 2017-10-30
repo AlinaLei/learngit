@@ -328,6 +328,14 @@ $(document).ready(function(){
 	for (var k in col_stack){
 		//$('input#'+k).val(col_stack[k])
 		$(document.getElementById(k)).val(col_stack[k])
+		try {
+		obb = $('input[id*='+k+']') //å†…å®¹éƒ¨åˆ†æ›¿æ¢
+		obb.each(function(){$(this).val($(this).val().replace(k,col_stack[k]))})
+        // if(obb.length > 0){obb.val(obb.val().replace(k,col_stack[k]))}
+ã€€ã€€    } catch(err) {console.log(err)}
+		
+
+		
 	};
 })
  </script>
@@ -335,29 +343,29 @@ $(document).ready(function(){
  <body> 
     
    	<div class="task-tit">
-		<span >½á¹û±í  (¼ÌĞøÍ¸ÊÓ»ã×Ü:¿ÉÊ¹ÓÃÏÂÃæµÄÀ©Õ¹) ,»òÖ±½Ó:</span>
+		<span >ç»“æœè¡¨  (ç»§ç»­é€è§†æ±‡æ€»:å¯ä½¿ç”¨ä¸‹é¢çš„æ‰©å±•) ,æˆ–ç›´æ¥:</span>
 		<input type="hidden" value="{{xlsn}}" id="download"/>
-		<input type="button" id="one" value="ÏÂÔØÎÄ¼ş" style = "margin-right:19px;border:0px;font-size: 15px;" onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:{{ base_dict['DOWNLOAD_PORT'] }}/{{xlsn}}'"/> 
+		<input type="button" id="one" value="ä¸‹è½½æ–‡ä»¶" style = "margin-right:19px;border:0px;font-size: 15px;" onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:{{ base_dict['DOWNLOAD_PORT'] }}/{{xlsn}}'"/> 
 		<!--input type="button" id="two" value=" view plot ! " onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:9999/maindir/{{xlsn}}.html'"/-->
 		<!--input style="padding:0; border:0; width:211px" value="{{tas}}"></input--> 
 		
 		
     </div>
-	<span class="nav-toggle">Õ¹¿ª×ÔÖúbi¹¤¾ß ></span>
+	<span class="nav-toggle">å±•å¼€è‡ªåŠ©biå·¥å…· ></span>
 	<div class="nav-config">
 	   <div id="nav1" class="nav-box acti-box"> 
 	    <div class="nav-tit">
-	     Î¬¶È:- ĞĞ
+	     ç»´åº¦:- è¡Œ
 	    </div> 
 	   </div> 
 	   <div id="nav2" class="nav-box"> 
 	    <div class="nav-tit">
-	     Î¬¶È:- ÁĞ
+	     ç»´åº¦:- åˆ—
 	    </div> 
 	   </div> 
 	   <div id="nav3" class="nav-box"> 
 	    <div class="nav-tit">
-	     Í³¼ÆÖ¸±ê
+	     ç»Ÿè®¡æŒ‡æ ‡
 	    </div>
 	   </div> 
    		<ul class="nav-selcet" id="nav-selcet">
@@ -368,8 +376,8 @@ $(document).ready(function(){
 	    	<li>precent</li>
 		</ul>
 	   <div class="nav-btn-groups"> 
-		    <input type="button" value="Ìá½»"  id="submit"/> 
-		    <input type="button" value="Çå³ı"  id="cancel"/>
+		    <input type="button" value="æäº¤"  id="submit"/> 
+		    <input type="button" value="æ¸…é™¤"  id="cancel"/>
 
 	   </div> 
 	   </div> 
@@ -394,15 +402,15 @@ $(document).ready(function(){
 	  	<div class="layer-bg"></div>						
 	  	<div class="window-box">							
 	  		<div class="window-hd">								
-	  			<span>ÏµÍ³ÏûÏ¢</span>								
-	  			<a class="close-box" href="javascript:;" id="closeBtn">¹Ø±Õ</a>							
+	  			<span>ç³»ç»Ÿæ¶ˆæ¯</span>								
+	  			<a class="close-box" href="javascript:;" id="closeBtn">å…³é—­</a>							
 	  		</div>							
 	  		<div class="window-bd">
-	  			<div class="winbox-item">Ìá½»³É¹¦£¡</div>
+	  			<div class="winbox-item">æäº¤æˆåŠŸï¼</div>
                 <input style="padding:0; border:0; width:211px" id="timetake" value="time taken::"></input>
 	  			<div class="winbox-item">
-	  				<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="downloadBtn" style="margin-right: 10px;">ÏÂÔØEXCEL</a>
-					<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="updateBtn">ĞÂÒ³Ãæ´ò¿ª</a>
+	  				<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="downloadBtn" style="margin-right: 10px;">ä¸‹è½½EXCEL</a>
+					<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="updateBtn">æ–°é¡µé¢æ‰“å¼€</a>
 				</div>		
 			</div>					
 		</div>				
@@ -422,13 +430,13 @@ $(document).ready(function(){
 			$('table.gridtable').css('margin','0px 0px 0px 15px')
 			$('table.gridtable tr th').css('background-color','rgba(244,245,95,0.23)')
 		}else{
-			$('.nav-toggle').html('Õ¹¿ª×ÔÖúbi¹¤¾ß >>');
+			$('.nav-toggle').html('å±•å¼€è‡ªåŠ©biå·¥å…· >>');
 			$('table.gridtable').css('margin','28px 0px 0px 15px')
 			$('table.gridtable tr th').css('background-color','rgba(226, 234, 220, 0.66)')
 		}
 		$('.nav-config').toggle(16.9);
 	}
-	// nav_toggle();//Ä¬ÈÏÕ¹¿ª
+	// nav_toggle();//é»˜è®¤å±•å¼€
 	$('.nav-toggle').on('click',nav_toggle)
 	
 	$('.nav-box').on('click',function (){
