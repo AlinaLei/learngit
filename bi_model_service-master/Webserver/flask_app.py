@@ -331,6 +331,7 @@ def v_table():
     return ss
 
 
+
 @app.route("/task_mamt", methods=['GET', 'POST'])
 @login_required
 def task_mamt():
@@ -350,7 +351,7 @@ def task_mamt():
 def bi_reshape():
     print("successful")
     print('POST')
-    
+
 
 
 
