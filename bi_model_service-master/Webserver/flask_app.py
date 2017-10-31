@@ -351,7 +351,7 @@ def task_mamt():
 def bi_reshape():
     print("successful")
     print(request)
-    return json.dumps({"download": "http://120.25.245.164:8186/ReadMe", "update": "/})
+    return json.dumps({"download": "http://120.25.245.164:8186/ReadMe", "update": "/"})
 
 if __name__ == "__main__":
     # my = my_(MYSQL_BI_RW_ENV)
