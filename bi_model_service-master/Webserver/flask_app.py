@@ -350,7 +350,7 @@ def task_mamt():
 @login_required
 def bi_reshape():
     print("successful")
-    print(request)
+    print(request.values.to_dict())
     return json.dumps({"download": "http://120.25.245.164:8186/ReadMe", "update": "/"})
 
 if __name__ == "__main__":
