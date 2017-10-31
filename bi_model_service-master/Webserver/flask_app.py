@@ -13,6 +13,7 @@ from config import *
 sys.path.append('../predict')
 from simple_func_backp import *
 import pandas as pd
+import numpy as np
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?R1'
 login_manager = LoginManager()
@@ -351,6 +352,18 @@ def task_mamt():
 def bi_reshape():
     print("successful")
     print(request.values.to_dict())
+    Pdata=request.values.to_dict()
+    file=Pdata['url']
+    df=pd.read_csv(file,encoding='utf-8',hander=True)
+    row=Pdata['nav1']
+    print(row)
+    col=Pdata['nav2']
+    print(col)
+    values,target=Pdata['nav3'].split(':',1)
+    print(values)
+    print(target)
+    result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=[np.target])
+    print(result)
     return json.dumps({"download": "http://120.25.245.164:8186/ReadMe", "update": "/"})
 
 if __name__ == "__main__":
