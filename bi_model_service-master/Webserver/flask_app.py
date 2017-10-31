@@ -354,7 +354,7 @@ def bi_reshape():
     print(request.values.to_dict())
     Pdata=request.values.to_dict()
     file=Pdata['url']
-    df=pd.read_csv(file,encoding='utf-8',hander=True)
+    df=pd.read_csv(file,encoding='utf-8',header=True)
     row=Pdata['nav1']
     print(row)
     col=Pdata['nav2']
