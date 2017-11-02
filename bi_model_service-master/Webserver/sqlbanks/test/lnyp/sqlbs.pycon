@@ -16,6 +16,7 @@
 		og.goods_id as '商品ID',
          og.goods_title as '商品名称',
 		 case a.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品',
+		  og.unit_title_bak+''+og.color_title_bak+'' as '商品属性',
 		 og.goods_price as '商品卖价',
 		 J.DisplayName AS '商家',
 		 og.quantity as '商品数量',
@@ -28,10 +29,13 @@
 		 case when sm.addtime is null then '未注册用户'
 		     else '注册用户' end  as '注册与否',
          cmcc.mobilearea as '号码归属地',
+         os.createtime as '下单时间',
 		 os.payment_time as '支付时间',
 		 os.receipt_time as '确认收货时间',
 		 os.receiver_tel as '收货人号码',
 		 os.receiver_username as '收货人',
+		 case os.payment_status as '支付状态',
+		 (case os.express_status when 2 then '已发货' else '未发货' end) '发货状态',
 				case when og.is_drawback is null then ''
 	when os.returnstatus = 4 or ISNULL(os.is_drawback,0)= 2 or (ISNULL(os.is_drawback,0)= 1 and ISNULL(og.is_drawback,0)=1 and ISNULL(d.drawback_state,0)=12) then '退款完成'
 	when os.returnstatus = 5 or ISNULL(os.is_drawback,0)= 3 or (ISNULL(os.is_drawback,0)= 1 and og.is_drawback= 0 ) then '拒绝退款'
