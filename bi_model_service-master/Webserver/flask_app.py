@@ -354,7 +354,7 @@ def bi_reshape():
     print(request.values.to_dict())
     Pdata=request.values.to_dict()
     file=Pdata['url']
-    df=pd.read_csv(file,encoding='utf-8')
+    df=pd.read_csv(file,sep='\t',encoding='utf-8')
     row=Pdata['nav1']
     print(row)
     col=Pdata['nav2']
@@ -363,7 +363,7 @@ def bi_reshape():
     s={'sum':np.sum,'mean':np.mean,'count':len(values),'avg':np.mean,'precent':np.sum}
     print(values)
     print(target)
-    result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=s)
+    result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=s['target'])
     return results
 
 if __name__ == "__main__":
