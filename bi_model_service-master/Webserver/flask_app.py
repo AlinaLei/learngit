@@ -360,7 +360,7 @@ def bi_reshape():
     col=Pdata['nav2']
     print(col)
     values,target=Pdata['nav3'].split(':',1)
-    s={'sum':np.sum,'mean':np.mean,'count':len(),'avg':np.mean,'precent':np.sum}
+    s={'sum':np.sum,'mean':np.mean,'count':len(values),'avg':np.mean,'precent':np.sum}
     print(values)
     print(target)
     result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=s)
