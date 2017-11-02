@@ -360,11 +360,11 @@ def bi_reshape():
     col=Pdata['nav2']
     print(col)
     values,target=Pdata['nav3'].split(':',1)
+    s={'sum':np.sum,'mean':np.mean,'count':len(),'avg':np.mean,'precent':np.sum}
     print(values)
     print(target)
-    result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=[np.target])
-    print(result)
-    return json.dumps({"download": "http://120.25.245.164:8186/ReadMe", "update": "/"})
+    result=pd.pivot_table(df,index=row,values=values,columns=col,aggfunc=s)
+    return results
 
 if __name__ == "__main__":
     # my = my_(MYSQL_BI_RW_ENV)
