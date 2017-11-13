@@ -15,11 +15,13 @@
         os.sub_order_no as '子订单号',
 		og.goods_id as '商品ID',
          og.goods_title as '商品名称',
+         case a.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品(流量捆绑商品不参与营销补贴)',
 		  og.unit_title_bak+''+og.color_title_bak+'' as '商品属性',
 		 og.goods_price as '商品卖价',
 		 J.DisplayName AS '商家',
 		 og.quantity as '商品数量',
 		 og.fav_profit as '优惠券金额',
+		 (case when g.favtype=7 then  g.fav_profit else 0 end) as '电子券支付金额(支付部分不参与营销补贴)',
 		 o.payable_amount as '订单金额',
 		 o.telphone as '支付电话',
          cmcc.mobilearea as '号码归属地',
@@ -48,6 +50,8 @@
         on substring(o.telphone,1,7) = cmcc.mobilesection and cmcc.mobilearea = '_i_'
 left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
   where os.appid=100000058
+  and os.payment_status>=2
+  and os.status in (2,3)
   and left(os.order_no,3)<>'bvt'
   and os.createtime < '_i_'
  and os.createtime >= '_i_'
