@@ -139,3 +139,30 @@ and add_time >= '_i_'
 and add_time < '_i_'
 group by product_id
 """
+,'ln_cityseller_orders':
+"""
+select o.order_no as '订单号',os.sub_order_no as '子订单号'og.goods_id as '商品ID',og.goods_title as '商品名称',case a.isTiedSale WHEN 1 then '是' else '否' end as '是否流量包捆绑商品',
+jg.displayname as '供应商名称',og.goods_price as '商品单价',og.quantity as '商品数量',og.fav_profit as '优惠券金额',(case when g.favtype=7 then  g.fav_profit else 0 end) as '电子券支付金额',
+og.goods_price* og.quantity as '销售金额',os.pay_tel as '支付人',o.add_time as '下单时间',os.payment_time as '支付时间',os.receipt_time as '订单完成时间',
+CASE WHEN (og.is_drawback=1 or  os.returnstatus=1)  THEN '申请退款'
+WHEN (og.is_drawback=1 or  os.returnstatus in(2,3) ) THEN '正在退款'
+WHEN (og.is_drawback=2 or  os.returnstatus=4 ) THEN '退款完成'
+WHEN  (og.is_drawback=3 or  os.returnstatus=5 ) THEN '拒绝退款'
+ELSE '' END as '退货状态'
+from hk_orders_sub os
+left join hk_order_goods og on os.sub_order_no=og.suborderno
+left join hk_jigou jg on og.jgid=jg.id
+left join hk_jigou jg2 on jg2.id=jg.parentid
+left join hk_orders o on os.order_no=o.order_no
+left join hk_article a on a.id=og.goods_id and a.appid=100000058
+left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+where os.status in (2,3)
+and os.payment_status>=2
+and os.deleted=0
+and jg.orgtype=2
+and jg2.displayname like '%_i_%'
+and o.add_time < '_i_'
+and o.add_time >= '_i_'
+and  o.appid='100000058'
+"""
+
