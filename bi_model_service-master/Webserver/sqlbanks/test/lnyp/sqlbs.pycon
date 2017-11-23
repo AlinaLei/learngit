@@ -200,7 +200,7 @@ where os.appid=100000058
 and os.payment_status>=2
 and os.status in (2,3)
 and left(os.order_no,3)<>'bvt'
-and os.createtime <= '_i_'
+and os.createtime < '_i_'
 and os.createtime >= '_i_'
 """
 
