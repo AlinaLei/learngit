@@ -40,7 +40,7 @@
   from hk_orders_sub os
   inner join hk_order_goods og on os.sub_order_no=og.suborderno
   left join  hk_orders o  on o.order_no=os.order_No
-  left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+  left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id and g.favtype in (2,7)
   left join hk_article a on og.goods_id=a.id and a.appid=100000058
   left join hk_stores s on o.storeid=s.id
   left join hk_storemaster ss on s.id=ss.storeid
