@@ -87,7 +87,7 @@ left join hk_StoreMaster sm on os.pay_tel=sm.user_name and sm.appid=100000058
 from hk_orders o
 left join hk_order_goods og on o.order_no=og.orderno
 left join hk_orders_sub os on og.suborderno=os.sub_order_no
-left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id and g.favtype in (2,7)
 left join hk_article aa on og.goods_id=aa.id and aa.appid=100000058
 left join hk_jigou j on os.jgid=j.id
 left join hk_storemaster s on o.storeid=s.Storeid
@@ -155,7 +155,7 @@ left join hk_jigou jg on og.jgid=jg.id
 left join hk_jigou jg2 on jg2.id=jg.parentid
 left join hk_orders o on os.order_no=o.order_no
 left join hk_article a on a.id=og.goods_id and a.appid=100000058
-left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id and g.favtype in (2,7)
 where os.status in (2,3)
 and os.payment_status>=2
 and os.deleted=0
@@ -191,7 +191,7 @@ inner join mysqldata.dbo.coupon a on a.id=bb.coupon_id and a.app_id=100000058
 left join hk_sku s on (s.id=og.sku_id and s.goods_id=og.goods_id)
 left join hk_article aa on og.goods_id=aa.id
 left join hk_article_category b on aa.category_id=b.id
-left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id
+left join hk_order_goosFavDetail g on os.sub_order_no=g.suborderno and og.goods_id=g.productid and g.skuid=og.sku_id and g.favtype in (2,7)
 left join hk_drawback d on d.sub_order_no=os.sub_order_no
 LEFT JOIN hk_cate_private cp ON b.id=cp.cate_id AND cp.appid=100000058
 inner join hk_cmcc_gdmobile cmcc on substring(o.telphone,1,7) = cmcc.mobilesection and cmcc.mobilearea='东莞'
