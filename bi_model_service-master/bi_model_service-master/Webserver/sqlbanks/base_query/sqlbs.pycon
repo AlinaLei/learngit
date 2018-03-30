@@ -1,0 +1,24 @@
+'stations':"""
+select
+  stid,province,city,district,address,stname,shortname,longitude,latitude,real_district,real_city,real_province,real_address,type,operatortype
+from ods.ods_wei_stations
+where 1>0 and stid in (_i_)
+and stname like '%_i_%' """
+,'station_sbling':"""
+SELECT gs1.group_id,gs1.stid,gs2.* FROM ods.ods_wei_group_stations gs1
+left join
+  (select group_id group_id2,stid stid2 from ods.ods_wei_group_stations where isvalid = 1) gs2
+on gs2.group_id2=gs1.group_id
+where 1=1 and gs1.stid = _i_ and gs1.isvalid = 1
+"""
+,'WOB_smart_coupons':"""
+SELECT *,date(FROM_UNIXTIME(create_time)),FROM_UNIXTIME(create_time)
+#,count(1)
+FROM weicheche.`wei_smart_coupon_task_detail`
+where 1=1 and task_id = _i_ and user_id = _i_ and coupon_ids = _i_
+#send_time>create_time and
+"""
+,'WOB_user_coupons':"""
+SELECT * FROM fw_coupon.`wei_coupon_user_coupons`
+where 1=1 and coupon_id in (_i_) and uid in (_i_) ;
+"""

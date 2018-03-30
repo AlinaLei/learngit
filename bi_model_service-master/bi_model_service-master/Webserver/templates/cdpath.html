@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}捷径{% endblock %}
+{% block part_head %}
+{% endblock %}
+{% block body %}
+<h1>Directory listing for {{path}}</h1>
+<hr>
+{% for cont in conts %}
+	{% if cont == "selfd_sql"%}
+		<li><big><strong><a href="{{cont}}">{{cont}}                ========></a></strong></big>li></li>
+	{% else %}
+		<li><a href="{{path}}/{{cont}}">{{cont}}</a></li>
+	{% endif %}
+{% endfor %}
+<hr>
+{% endblock %}

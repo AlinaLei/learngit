@@ -1,0 +1,252 @@
+"WOB_hexinshuju":
+"""
+set @stday = '20180201' ;
+set @enday = '20180228' ;
+set @stday = '_i_' ;
+set @enday = '_i_' ;
+SELECT
+    a1.*
+    ,JF,JFDL,JFDQ,JFDY,CZK
+    ,a2.HB_str,a3.DZP_str,a4.XFFQ_str,a5.ZJFQ_str,a6.DJ_str,a7.HYYQ_str,a8.YJZH_str,a9.RGZH_str
+FROM
+    (SELECT
+	    t1.stid,province,city,stname,t3.group_id,t4.group_name
+    FROM
+	    wei_stations t1
+    INNER JOIN wei_stations_online t2 ON t1.stid = t2.stid
+    INNER JOIN wei_group_stations t3 ON t1.stid = t3.stid
+    INNER JOIN wei_groups t4 ON t3.group_id = t4.group_id
+    where
+      t1.`del_time` = 0
+    and t1.`status` = 1
+    and t2.del_time = 0
+    and t2.`status` = 1
+    and t3.isvalid = 1) AS a1
+LEFT JOIN
+    (select DISTINCT stid,1 JF
+    from
+        (select stid from weicheche.wei_credit_route where is_delete = 0 and route = 1
+        UNION ALL
+        select GS.stid from weicheche.wei_group_stations GS
+        inner join weicheche.wei_stations_online SO
+        on SO.stid = GS.stid and GS.isvalid = 1
+        inner join weicheche.wei_station_credit_rules SCR
+        on GS.group_id = SCR.group_id and SCR.isvalid = 1
+        where has_credit = 1 and gpn_credit+inspay_credit+initiative_exchange ) X
+    ) XX1
+ON XX1.stid = a1.stid
+LEFT JOIN
+    (select
+      cooperation_id,sum(business_id=8) JFDY,sum(business_id=12) JFDL,sum(business_id=5) CZK
+    from
+     (SELECT cooperation_id,business_id FROM weicheche.wei_business_record
+      where is_delete = 0 and UNIX_TIMESTAMP(now()) BETWEEN start_time and end_time and cooperation_type = 1
+      UNION ALL
+      SELECT stid cooperation_id,business_id
+      FROM weicheche.wei_business_record BR
+      inner JOIN weicheche.wei_group_stations GS
+      on GS.group_id = cooperation_id and GS.isvalid = 1
+      where is_delete = 0 and UNIX_TIMESTAMP(now()) BETWEEN start_time and end_time and cooperation_type = 2
+      ) X
+    group by cooperation_id
+    ) XX2
+ON XX2.cooperation_id = a1.stid
+LEFT JOIN
+    (select DISTINCT merchant_id,1 JFDQ
+    from
+      (select merchant_id from weicheche.wei_credit_exchange
+       where is_delete = 0 and UNIX_TIMESTAMP(now()) BETWEEN start_time and end_time and merchant_type = 1
+       UNION ALL
+       select stid merchant_id
+       from weicheche.wei_credit_exchange
+       inner JOIN weicheche.wei_group_stations GS
+       on GS.group_id = merchant_id and GS.isvalid = 1
+       where is_delete = 0 and UNIX_TIMESTAMP(now()) BETWEEN start_time and end_time and merchant_type = 2
+      ) X
+    ) XX3
+ON XX3.merchant_id = a1.stid
+LEFT JOIN
+    (SELECT stidall,COUNT(stidall) AS HB_str
+     FROM
+        (SELECT
+	        b1.merchant_type,b1.merchant_id,IFNULL(b2.stid,b1.merchant_id) AS stidall
+        FROM
+	        wei_coupon_gift_activity b1
+        LEFT JOIN wei_group_stations b2 ON b1.merchant_id = b2.group_id
+        WHERE
+          b1.end_time  >= UNIX_TIMESTAMP(@stday)
+        and
+          b1.start_time  < UNIX_TIMESTAMP(DATE_ADD(@enday,INTERVAL 1 day))) AS HB1
+    GROUP BY stidall
+    )AS a2
+ON a1.stid = a2.stidall
+LEFT JOIN
+    (SELECT stid,COUNT(stid) AS DZP_str
+		 FROM
+        (SELECT c1.activity_id,c2.stid
+        FROM
+	        wei_game_activity c1
+        LEFT JOIN wei_game_region c2 ON c1.activity_id = c2.activity_id
+        WHERE
+          c2.isvalid = 1
+        AND
+          c1.end_time  >= UNIX_TIMESTAMP(@stday)
+        AND
+          c1.start_time  < UNIX_TIMESTAMP(DATE_ADD(@enday,INTERVAL 1 day))) AS DZP1
+        GROUP BY stid
+    )AS a3
+ON a1.stid = a3.stid
+LEFT JOIN
+    (SELECT stidall2,COUNT(stidall2) AS XFFQ_str
+     FROM
+        (SELECT
+	        c1.merchant_type,c1.merchant_id,IFNULL(b2.stid,c1.merchant_id) AS stidall2
+        FROM
+	        wei_refuel_award_config c1
+        LEFT JOIN wei_group_stations b2 ON c1.merchant_id = b2.group_id
+        WHERE
+          c1.end_time  >= UNIX_TIMESTAMP(@stday)
+        and
+          c1.start_time  < UNIX_TIMESTAMP(DATE_ADD(@enday,INTERVAL 1 day))) AS XFFQ1
+    GROUP BY stidall2
+    )AS a4
+ON a1.stid = a4.stidall2
+LEFT JOIN
+    (SELECT stidall3,COUNT(stidall3) AS ZJFQ_str
+     FROM
+        (SELECT
+	        d1.merchant_type,d1.merchant_id,IFNULL(b2.stid,d1.merchant_id) AS stidall3
+        FROM
+	        wei_coupon_send_record d1
+        LEFT JOIN wei_group_stations b2 ON d1.merchant_id = b2.group_id
+        WHERE d1.send_time >= UNIX_TIMESTAMP(@stday) AND send_time < UNIX_TIMESTAMP(@enday)
+        AND (d1.type = 1 OR d1.type = 3 )
+        ) AS ZJFQ1
+    GROUP BY stidall3
+    )AS a5
+ON a1.stid = a5.stidall3
+LEFT JOIN
+    (SELECT merchant_id ,COUNT(DISTINCT merchant_id ) AS DJ_str, DJXT1.stid
+     FROM
+        (SELECT
+	        e1.merchant_type, e1.merchant_id, b2.stid
+        FROM
+	        wei_level_config e1
+        LEFT JOIN wei_group_stations b2 ON e1.merchant_id = b2.group_id
+        WHERE
+          e1.end_time >= UNIX_TIMESTAMP(@stday)
+        and
+          e1.start_time < UNIX_TIMESTAMP(DATE_ADD(@enday,INTERVAL 1 day))) AS DJXT1
+    GROUP BY merchant_id
+    )AS a6
+ON a1.stid = a6.stid
+LEFT JOIN
+    (SELECT stidall4,COUNT(stidall4) AS HYYQ_str
+     FROM
+        (SELECT
+	        f1.merchant_type,f1.merchant_id,IFNULL(b2.stid,f1.merchant_id) AS stidall4
+        FROM
+	        wei_invite_friend_activity f1
+        LEFT JOIN wei_group_stations b2 ON f1.merchant_id = b2.group_id
+        WHERE
+          f1.end_time >= UNIX_TIMESTAMP(@stday)
+        and
+          f1.start_time < UNIX_TIMESTAMP(@enday)
+        ) AS HYYQ1
+    GROUP BY stidall4
+    )AS a7
+ON a1.stid = a7.stidall4
+LEFT JOIN
+    (SELECT stidall5,COUNT(stidall5) AS YJZH_str
+     FROM
+        (SELECT
+	        g1.merchant_type,g1.merchant_id,IFNULL(b2.stid,g1.merchant_id) AS stidall5
+        FROM
+	        wei_user_recall_task g1
+        LEFT JOIN wei_group_stations b2 ON g1.merchant_id = b2.group_id
+        WHERE g1.create_time >= UNIX_TIMESTAMP(@stday) AND g1.create_time < UNIX_TIMESTAMP(@enday)
+        ) AS YJZH1
+    GROUP BY stidall5
+    )AS a8
+ON a1.stid = a8.stidall5
+LEFT JOIN
+    (SELECT stidall6,COUNT(stidall6) AS RGZH_str
+     FROM
+        (SELECT
+	        d1.merchant_type,d1.merchant_id,IFNULL(b2.stid,d1.merchant_id) AS stidall6
+        FROM
+	        wei_coupon_send_record d1
+        LEFT JOIN wei_group_stations b2 ON d1.merchant_id = b2.group_id
+        WHERE d1.send_time >= UNIX_TIMESTAMP(@stday) AND d1.send_time < UNIX_TIMESTAMP(@enday)
+        AND d1.type = 2
+        AND d1.`name`	LIKE '%人工召回%'
+        ) AS RGZH1
+    GROUP BY stidall6
+    )AS a9
+ON a1.stid = a9.stidall6 """
+,
+'DW_shangxianyouzhan':"""
+set @stday = '20180201' ;
+set @enday = '20180228' ;
+set @stday = '_i_' ;
+set @enday = '_i_' ;
+
+SELECT
+     t1.stid,replace(stname,'\t','') stname,replace(address,'\t','') address,province,city,t4.group_id,group_name, IF(t2.status = 1,'上线','下线') as '是否上线',
+      t5.bs11 as '月一键加油笔数',t5.ss11 as '月一键加油升数',t5.je11 as '月一键加油金额',
+      t6.bs12 as '月非油品笔数',t6.je12 as '月非油品金额',t7.bs13 as '月闪付笔数',t7.je13 as '月闪付金额'
+    FROM
+     ods.ods_wei_stations t1
+    LEFT JOIN ods.ods_wei_stations_online t2 ON t1.stid = t2.stid
+    LEFT JOIN ods.ods_wei_group_stations t3 ON t1.stid = t3.stid
+    LEFT JOIN ods.ods_wei_groups t4 ON t3.group_id = t4.group_id
+
+    LEFT JOIN
+    (SELECT t5.stid,COUNT(1) as bs11,sum(t5.oil_liter) as ss11,sum(t5.pay_price) as je11
+    FROM dw.dw_inspay_orders t5
+    WHERE t5.batch_date BETWEEN @stday and @enday
+    GROUP BY t5.stid) t5
+    ON t5.stid = t1.stid
+    LEFT JOIN
+    (SELECT t6.merchant_id  ,sum(t6.sale_num)as bs12 ,sum(t6.sale_sum)as je12
+    FROM dw.dw_statistics_retail_orders t6
+    WHERE t6.batch_date BETWEEN @stday and @enday
+    GROUP BY t6.merchant_id) t6
+    ON t6.merchant_id = t1.stid
+    LEFT JOIN
+    (SELECT t7.merchant_id  ,sum(t7.sale_num)as bs13 ,sum(t7.sale_sum)as je13
+    FROM dw.dw_statistics_quickpass_orders t7
+    WHERE t7.batch_date BETWEEN @stday and @enday
+    GROUP BY t7.merchant_id) t7
+    ON t7.merchant_id = t1.stid
+WHERE t1.`del_time` = 0 and t2.del_time = 0
+GROUP BY t1.stid
+"""
+,"DW_jituanyueshuju_1":"""
+set @stday = '20180201' ;
+set @enday = '20180228' ;
+set @stday = '_i_' ;
+set @enday = '_i_' ;
+
+SELECT s1.order_code, s1.orig_price, s1.real_price, s1.pay_price, s1.oil_liter,
+       l2.stname, l1.oil_name, FROM_UNIXTIME(s1.pay_time) as '交易时间' , l3.phone,s1.payment_id as '支付方式',
+       l5.coupon_name,s1.coupon_discount,s1.pre_level_id,l7.level_name as '交易等级',l8.level_name as '交易后等级',
+       l6.gun_no as '枪号',s1.credit_unit_discount as '积分每分优惠'
+       #,t2.customer_identity as '客户身份'
+       ,GROUP_CONCAT(t3.sub_type_name) as '客户身份'
+
+FROM dw.dw_inspay_orders s1
+LEFT JOIN ods.ods_wei_ol_oil l1 ON l1.oil_id = s1.oil_id
+LEFT JOIN ods.ods_wei_stations l2 ON l2.stid = s1.stid
+LEFT JOIN ods.ods_wei_users l3 ON l3.uid = s1.uid
+LEFT JOIN ods.ods_wei_coupon_user_coupons l4 ON l4.user_coupon_id = s1.user_coupon_id
+LEFT JOIN ods.ods_wei_coupons l5 ON l5.coupon_id = l4.coupon_id
+LEFT JOIN ods.ods_wei_ol_oil_guns l6 ON l6.gun_id = s1.gun_id
+LEFT JOIN ods.ods_wei_level_config l7 ON l7.id = s1.pre_level_id
+LEFT JOIN ods.ods_wei_level_config l8 ON l8.id = s1.after_level_id
+LEFT JOIN dw.dw_crm_latest_station t2 ON t2.uid = s1.uid AND t2.stid = s1.stid
+LEFT JOIN ods.ods_wei_driver_sub_type t3 on t2.customer_identity REGEXP CONCAT('.*',t3.sub_type_id,'[],].*')
+WHERE 1=1 and s1.group_id in (_i_)
+AND s1.batch_date BETWEEN @stday AND @enday
+group by order_code
+"""

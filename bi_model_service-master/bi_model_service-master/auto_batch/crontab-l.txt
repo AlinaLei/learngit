@@ -1,0 +1,13 @@
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# | .------------- hour (0 - 23)
+# | | .---------- day of month (1 - 31)
+# | | | .------- month (1 - 12) OR jan,feb,mar,apr ...
+# | | | | .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# | | | | |
+# * * * * * user-name command to be executed
+psh=/home/xuecheng/gitpro/bi_model_service/auto_batch 
+  33 3 * * * (cd $psh;sh autoday_03_33.sh 1 > autoday_03_33.sh_log)
+  04 4 * * * (cd $psh;sh autoday_04_04.sh 1 > autoday_04_04.sh_log)
+  29 6 * * * (cd $psh;sh autoday_06_30.sh 1 > autoday_06_30.sh_log)
+  29 23 * * * (cd $psh;sh autoday_23_30.sh 1 > autoday_23_30.sh_log)

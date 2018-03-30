@@ -1,0 +1,7 @@
+"PWatchDog_prixies":"""
+SELECT if(origin < 0,'来自进化','来自爬取') descrip,count(1) co
+      ,sum(response_time < 3.5) responseable,sum(anonymous_degree>0.8 and response_time < 3) useful,sum(anonymous_degree>1.2 and response_time < 3) strongly_useful
+      ,sum(use_times) use_times ,sum(use_success_times) use_success_times
+FROM bi_papapa.ips
+group by origin < 0;"""
+,

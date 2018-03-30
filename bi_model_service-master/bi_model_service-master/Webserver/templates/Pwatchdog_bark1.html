@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Pwatchdogs{% endblock %}
+{% block part_head %}
+	<style type="text/css">
+		body {
+			font-family: 'microsoft yahei';
+			color: #666;
+			margin: 0px;
+			padding: 0px;
+			font-size: 13px;
+		}
+		a, div, button, textarea, input {
+			outline: none;
+			text-decoration: none;
+		}
+		.t-head {
+			background: #f4f4f4!important;
+		}
+		tr:hover {
+		background: #ddf2f7!important;
+		}
+		th, td{
+			display: table-cell;
+			vertical-align: inherit;
+			border: 1px solid #e6e6e6;
+			padding: 4px 6px;
+		}
+		<body>
+		</style>
+	<script></script>
+{% endblock %}
+{% block body %}
+	<table class="task-list">
+	    <tbody>
+			<tr class="t-head">
+				<th>监控任务ID</th><th>描述</th><th>value1</th><th>value2</th><th>取值时间</th><th>关注等级：结论</th><th>操作</th>
+			</tr>
+	    </tbody>
+	    <tbody id="dataclone" style="display: table-row-group;line-height: 28px;">
+			{% for rw in Pwatchdog_data %}
+			<tr>
+				<td>{{ rw['ID'] }}</td>
+				<td>{{ rw['descrip'] }}</td><td>{{ rw['value1'] }}</td><td>{{ rw['value2'] }}</td><td>{{ rw['valueTime'] }}</td>
+				<td>{{ rw['level_result'] }}</td>
+				<td>{% if 'cons_name' in rw %}
+				    <a title="{{ rw['cons_title'] }}"  href="{{ rw['cons_href'] }}" target="_blank" >  {{ rw['cons_name'] }}  </a>
+				    {% else %}
+				    {% endif %}
+				</td>
+			</tr>
+			{% endfor %}
+	    </tbody>
+	</table>
+{% endblock %}

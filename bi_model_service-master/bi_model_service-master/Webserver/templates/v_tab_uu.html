@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+{% block title %}BI SYS 2.0{% endblock %}
+{% block part_head %}
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-1.10.2.min.js"></script>
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-ui-1.10.4.min.js"></script>
+
+	<style type="text/css">
+	table.gridtable {
+		font-family: verdana,arial,sans-serif;
+		font-size:11px;
+		border-collapse: collapse;
+		margin: 30px 0px 0px 15px;
+		text-align: center;
+	}
+	table.gridtable tr th {
+		border-width: 1.5px;
+		padding: 2px 3px;
+		border-style: solid;
+		border-color: #666666;
+		border-top-color: transparent;
+		border-bottom-color: transparent;
+		/*background-color:rgba(244,245,95,0.23);*/
+	}
+	table.gridtable td {
+		border-width: 1px;
+		padding:3px 4px;
+		border-style: dotted;
+		border-color: #666666;
+		background-color:rgba(226, 234, 220, 0.83)
+	}
+
+
+	.drag-input{
+		margin:5px;
+		border-bottom: 1px solid #e6e6e6;
+		height: 25px;
+	}
+
+	.drag-input input , .ui-draggable{
+		display: inline-block;
+		float: initial;
+		background:#4680c4;
+		color: #FFF;
+		border: 1px solid #f4f555;
+		border-radius:14px;
+		font-size: 13px;
+		padding: 3px 4px;
+	}
+
+.nav-config{
+	/*position: fixed;
+	top: 0;
+	right: 0; */
+	margin: 0px 0px 0px 15px;
+	padding: 8px 0px 8px 22px;
+	background: rgba(244,245,95,0.3);
+	display: none;
+	border-left: 1px solid #e6e6e6;
+	border-top: 1px solid #e6e6e6;
+}
+.nav-box{
+	width: 251px;
+    height: 150px;
+    margin-left: 10px;
+    border: 2px solid #4680c4;
+    background: #FFF;
+    color: #FFF;
+    display: inline-block;
+	vertical-align: top;
+}
+.acti-box{
+	border: 2px solid rgba(244,245,95,0.3);
+	background-color: aliceblue;
+}
+	.nav-tit{
+		font-size: 14px;
+	    line-height: 20px;
+	    background: #4680c4;
+	    padding-left: 5px;
+	    position: relative;
+	}
+.nav-btn-groups{
+	display: inline-block;
+	vertical-align: top;
+}
+.nav-btn-groups input[type="button"]{
+	margin: 30px 40px;
+	background: #4680c4;
+	padding: 6px 9px;
+	color: #FFF;
+	border: 1px solid #f4f555;
+	outline: none;
+	display: list-item;
+	/*cursor: pointer;*/
+}
+	.nav-selcet{
+		position: fixed;
+		display: none;
+		z-index: 99;
+	    background: rgba(0,0,0,0.8);
+	    border: 1px solid #4680c4;
+	    border-bottom: none;
+	    color: #fff;
+	    list-style: none;
+	    line-height: 25px;
+	    text-align: center;
+	    padding-left: 0px;
+	    width: 70px;
+	}
+	.nav-selcet li{
+		border-bottom: 1px solid #4680c4;
+    	cursor: pointer;
+	}
+
+	.layer {
+	    position: fixed;
+	    top: 0;
+	    left: 0;
+	    width: 100%;
+	    height: 100%;
+	    display: none;
+	}
+	.layer-bg {
+	    position: fixed;
+	    top: 0;
+	    left: 0;
+	    width: 100%;
+	    height: 100%;
+	    background: #000;
+	    opacity: .5;
+
+	}
+	.window-box {
+		position: absolute;
+	    left: 0;
+	    top: 0;
+	    width: 300px;
+	    height: 200px;
+	    background: #fff;
+	    font-size: 14px;
+	    bottom: 0;
+	    right: 0;
+	    margin: auto;
+	}
+	.window-box .window-hd {
+	    line-height: 34px;
+	    background: #2bbd74;
+	    padding: 0 20px;
+	    font-size: 14px;
+	    color: #fff;
+	}
+	a {
+	    text-decoration: none;
+	    outline: none;
+	    cursor: pointer;
+	}
+	.window-box .window-hd .close-box {
+	    float: right;
+	    color: #fff;
+	}
+	.window-box .window-bd {
+	    padding: 22px;
+	    background: #fff;
+	}
+	.window-box .winbox-item {
+	    padding-top: 22px;
+	    padding-bottom: 22px;
+	    text-align: center;
+	}
+
+	.btn {
+	    display: inline-block;
+	    border-radius: 4px;
+	    height: 27px;
+	    line-height: 27px;
+	    text-align: center;
+	    font-size: 14px;
+	    text-decoration: none;
+	    cursor: pointer;
+	}
+
+	.btn-confirm {
+	    border: 1px solid #2bbd74;
+	    background: #2bbd74;
+	    color: #fff;
+	}
+	.btn-padding-middle {
+	    padding: 0 22px;
+	}
+
+	.load4 .loader {
+	  font-size: 20px;
+	  margin: 5em auto;
+	  width: 1em;
+	  height: 1em;
+	  border-radius: 50%;
+	  position: relative;
+	  text-indent: -9999em;
+	  -webkit-animation: load4 1.3s infinite linear;
+	  animation: load4 1.3s infinite linear;
+	}
+@-webkit-keyframes load4 {
+  0%,
+  100% {
+    box-shadow: 0em -3em 0em 0.2em #ffffff, 2em -2em 0 0em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 0em #ffffff;
+  }
+  12.5% {
+    box-shadow: 0em -3em 0em 0em #ffffff, 2em -2em 0 0.2em #ffffff, 3em 0em 0 0em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  25% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 0em #ffffff, 3em 0em 0 0.2em #ffffff, 2em 2em 0 0em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  37.5% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 0em #ffffff, 2em 2em 0 0.2em #ffffff, 0em 3em 0 0em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  50% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 0em #ffffff, 0em 3em 0 0.2em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  62.5% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 0em #ffffff, -2em 2em 0 0.2em #ffffff, -3em 0em 0 0em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  75% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 0.2em #ffffff, -2em -2em 0 0em #ffffff;
+  }
+  87.5% {
+    box-shadow: 0em -3em 0em 0em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 0em #ffffff, -2em -2em 0 0.2em #ffffff;
+  }
+}
+@keyframes load4 {
+  0%,
+  100% {
+    box-shadow: 0em -3em 0em 0.2em #ffffff, 2em -2em 0 0em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 0em #ffffff;
+  }
+  12.5% {
+    box-shadow: 0em -3em 0em 0em #ffffff, 2em -2em 0 0.2em #ffffff, 3em 0em 0 0em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  25% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 0em #ffffff, 3em 0em 0 0.2em #ffffff, 2em 2em 0 0em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  37.5% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 0em #ffffff, 2em 2em 0 0.2em #ffffff, 0em 3em 0 0em #ffffff, -2em 2em 0 -0.5em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  50% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 0em #ffffff, 0em 3em 0 0.2em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 -0.5em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  62.5% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 0em #ffffff, -2em 2em 0 0.2em #ffffff, -3em 0em 0 0em #ffffff, -2em -2em 0 -0.5em #ffffff;
+  }
+  75% {
+    box-shadow: 0em -3em 0em -0.5em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 0.2em #ffffff, -2em -2em 0 0em #ffffff;
+  }
+  87.5% {
+    box-shadow: 0em -3em 0em 0em #ffffff, 2em -2em 0 -0.5em #ffffff, 3em 0em 0 -0.5em #ffffff, 2em 2em 0 -0.5em #ffffff, 0em 3em 0 -0.5em #ffffff, -2em 2em 0 0em #ffffff, -3em 0em 0 0em #ffffff, -2em -2em 0 0.2em #ffffff;
+  }
+}
+
+.load-container {
+    position: absolute;
+    z-index: 99;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100px;
+    height: 100px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.loader {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+}
+.load4 .loader {
+	font-size: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    -webkit-animation: load4 1.3s infinite linear;
+    animation: load4 1.3s infinite linear;
+}
+ .loader:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+}
+
+.load-container a:link, .load-container a:visited {
+    position: absolute;
+    bottom: 3px;
+    font-size: 1.15em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    text-decoration: none;
+    color: #FFF;
+}
+.nav-toggle{
+	color: #FFF;
+    font-size: 12px;
+    padding: 3px 4px;
+    float: left;
+    position: absolute;
+    z-index: 99;
+    left: 10px;
+	cursor: pointer;
+    background: #4680c4;
+
+}
+.task-tit {
+    font-size: 18px;
+    color: #333;
+    height: 30px;
+    line-height: 30px;
+    display: block;
+}
+ </style>
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/translate.js"></script>
+	<script>
+$(document).ready(function(){
+	for (var k in col_stack){
+		//$('input#'+k).val(col_stack[k])
+		$(document.getElementById(k)).val(col_stack[k])
+		try {
+		obb = $('input[id*='+k+']') //内容部分替换
+		obb.each(function(){$(this).val($(this).val().replace(k,col_stack[k]))})
+        // if(obb.length > 0){obb.val(obb.val().replace(k,col_stack[k]))}
+        }
+        catch(err) {console.log(err)}
+	};
+})
+ </script>
+{% endblock %}
+{% block body %}
+   	<div class="task-tit">
+		<span >结果表  (继续透视汇总:可使用下面的扩展) ,或直接:</span>
+		<input type="hidden" value="{{xlsn}}" id="download"/>
+		<input type="button" id="one" value="下载文件" style = "margin-right:19px;border:0px;font-size: 15px;" onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:{{ base_dict['DOWNLOAD_PORT'] }}/{{xlsn}}'"/>
+		<!--input type="button" id="two" value=" view plot ! " onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:9999/maindir/{{xlsn}}.html'"/-->
+		<!--input style="padding:0; border:0; width:211px" value="{{tas}}"></input-->
+
+
+    </div>
+	<span class="nav-toggle">展开自助bi工具 ></span>
+	<div class="nav-config">
+	   <div id="nav1" class="nav-box acti-box">
+	    <div class="nav-tit">
+	     维度:- 行
+	    </div>
+	   </div>
+	   <div id="nav2" class="nav-box">
+	    <div class="nav-tit">
+	     维度:- 列
+	    </div>
+	   </div>
+	   <div id="nav3" class="nav-box">
+	    <div class="nav-tit">
+	     统计指标
+	    </div>
+	   </div>
+   		<ul class="nav-selcet" id="nav-selcet">
+	    	<li>sum</li>
+	    	<li>mean</li>
+	    	<li>count</li>
+	    	<li>avg</li>
+	    	<li>precent</li>
+		</ul>
+	   <div class="nav-btn-groups">
+		    <input type="button" value="提交"  id="submit"/>
+		    <input type="button" value="清除"  id="cancel"/>
+
+	   </div>
+	</div>
+
+    <table class="gridtable">
+	<tr>
+	{% for s in lines[0] %}
+    	<th><input type="button" id="{{s}}" value="{{s}}" title="{{s}}" class="ui-draggable" /></th>
+	{% endfor %}
+	</tr>
+    {% for line in lines %}
+    <tr>
+      {% for s in line %}
+       <td>{{s}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+
+  	<div class="layer" id="layerbox">
+	  	<div class="layer-bg"></div>
+	  	<div class="window-box">
+	  		<div class="window-hd">
+	  			<span>系统消息</span>
+	  			<a class="close-box" href="javascript:;" id="closeBtn">关闭</a>
+	  		</div>
+	  		<div class="window-bd">
+	  			<div class="winbox-item">提交成功！</div>
+                <input style="padding:0; border:0; width:211px" id="timetake" value="time taken::"></input>
+	  			<div class="winbox-item">
+	  				<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="downloadBtn" style="margin-right: 10px;">下载EXCEL</a>
+					<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="updateBtn">新页面打开</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="layer" id="loadbox">
+	  	<div class="layer-bg"></div>
+		<div class="load-container load4">
+			<div class="loader">Loading...</div>
+		</div>
+	</div>
+  	<script type="text/javascript" language="javascript" charset="UTF-8">
+	function nav_toggle(){
+		console.log($(this))
+		if($('.nav-toggle').html().indexOf('bi')>0){
+			$('.nav-toggle').html('^');
+			$('table.gridtable').css('margin','0px 0px 0px 15px')
+			$('table.gridtable tr th').css('background-color','rgba(244,245,95,0.23)')
+		}else{
+			$('.nav-toggle').html('展开自助bi工具 >>');
+			$('table.gridtable').css('margin','28px 0px 0px 15px')
+			$('table.gridtable tr th').css('background-color','rgba(226, 234, 220, 0.66)')
+		}
+		$('.nav-config').toggle(16.9);
+	}
+	// nav_toggle();//默认展开
+	$('.nav-toggle').on('click',nav_toggle)
+
+	$('.nav-box').on('click',function (){
+		$(this).addClass('acti-box')
+		$(this).siblings().removeClass('acti-box')
+	});
+
+	function addtag(tag,nav){
+		var obj = tag.clone();
+		obj.removeAttr('id');
+		obj.addClass('clone');
+		var tit = obj.attr('title');
+		if(nav!='#nav3'){
+			$("#nav1 input[title='"+tit+"']").remove();
+			$("#nav2 input[title='"+tit+"']").remove();
+		}else{
+			obj.val(obj.val()+':sum').attr('title',tit+':sum');
+		}
+		$(nav).append(obj);
+	}
+
+	$('.ui-draggable').not('.clone').on('dblclick',function (){
+	//console.log($(this))
+	addtag($(this),'#'+$('.acti-box.nav-box').attr('id'));
+	});
+
+	$('.ui-draggable').draggable({
+		cancel:false,
+		helper: 'clone',
+		cursor: 'move',
+		stop: function( event, ui ) {
+			var pointX = parseInt(event.pageX);
+			var pointY = parseInt(event.pageY);
+
+			//var left = parseInt($('#nav1').offset().left);
+			var htop = $('#nav1').offset().top
+			var width = parseInt($('#nav1').width());
+			var height = $('#nav1').height()
+			//var nav1_top = parseInt($('#nav1').offset().top);
+			//var nav2_top = parseInt($('#nav2').offset().top);
+			//var nav3_top = parseInt($('#nav3').offset().top);
+			var nav1_left = parseInt($('#nav1').offset().left);
+			var nav2_left = parseInt($('#nav2').offset().left);
+			var nav3_left = parseInt($('#nav3').offset().left);
+			var nav = null;
+			if(pointY>htop&&pointY<htop+height){
+				if(pointX>nav1_left&&pointX<nav1_left+width) nav ='#nav1';
+				else if(pointX>nav2_left&&pointX<nav2_left+width) nav ='#nav2';
+				else if(pointX>nav3_left&&pointX<nav3_left+width) nav ='#nav3';
+			}
+			if(nav!=null){
+				/*var obj = $(this).clone();
+				obj.removeAttr('id');
+				obj.addClass('clone');
+				var text = obj.val();
+				if(nav!='#nav3'){
+					$("#nav1 input[value='"+text+"']").remove();
+					$("#nav2 input[value='"+text+"']").remove();
+				}else{
+					obj.val(text+':sum');
+				}
+				$(nav).append(obj);*/
+				addtag($(this),nav);
+			}
+        }
+	});
+
+
+	$('#nav3').on('click','.clone',function(){
+		$(this).addClass('selec-item');
+		var left = parseInt($(this).offset().left);
+		var top = parseInt($(this).offset().top)+5;
+		$(".nav-selcet").css('left',left).css('top',top).toggle();
+	});
+
+
+	$("#nav-selcet li").click(function(){
+		var obj = $('.selec-item');
+		$("#nav-selcet").hide();
+		obj.val(obj.val().split(':')[0]+':'+$(this).text()).attr('title',obj.attr('title').split(':')[0]+':'+$(this).text()).removeClass('selec-item');
+	})
+
+
+	$('.nav-box').on('dblclick','.clone',function(){
+		$(this).remove();
+	});
+	function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return ''; //返回参数值
+    }
+	function PostData(){
+		var len = $('.nav-config').find('.clone').length;
+		if(len==0){
+			alert('please drag some tag!');
+			return;
+		}
+		var nav1=getformData('nav1');
+		var nav2=getformData('nav2');
+		var nav3=getformData('nav3');
+		var url = $('#download').val();
+		$('#loadbox').show();
+		$.ajax({
+	      type:"post",
+	      data:"nav1="+nav1+"&nav2="+nav2+"&nav3="+nav3+"&url="+url+"&code="+getUrlParam('code'),
+	      dataType: "json",
+	      //url:"/auditaccounts/save-receipt.do?t="+Math.random(),
+		  url:"/bi_reshape/",
+	      cache:false,
+	      success:function(data){
+	    		console.log(data)
+	    		$('#loadbox').hide();
+	    		$('#downloadBtn').attr('data-url',data.download);
+	    		$('#updateBtn').attr('data-url',data.update);
+                $('#timetake').attr('value',data.tas);
+	    		$('#layerbox').show();
+	    	 },
+	    	error:function(){
+	    		$('#loadbox').hide();
+	    		alert('submit fail!');
+	    	}
+	    })
+	}
+
+	$('#submit').click(PostData);
+	document.onkeydown = function(event) {
+		var e = event || window.event || arguments.callee.caller.arguments[0];
+		if (e && e.keyCode == 13) {PostData();}
+		if (e && e.keyCode == 27) {nav_toggle();}
+	};
+
+
+	$('#cancel').click(function(){
+		$('.clone').remove();
+	});
+
+	$('#closeBtn').click(function(){
+		 $('#layerbox').hide();
+	});
+
+	$('#downloadBtn').click(function(){
+		window.open($(this).attr('data-url'));
+	});
+
+	$('#updateBtn').click(function(){
+		window.open($(this).attr('data-url'));
+	});
+
+	function getformData(obj){
+		var arry = [];
+		$('#'+obj).find('input').each(function(){
+			arry.push($(this).attr('title'));
+		});
+		return arry
+	}
+	</script>
+{% endblock %}
+

@@ -1,0 +1,154 @@
+"smart_coupon_":"""
+SELECT
+  XX.*
+  ,O1.order_code as1_order_code,O1.stid as1_stid,O1.orig_price,O1.real_price,O1.coupon_discount,O1.user_coupon_id as1_user_coupon_id,O1.activity_type
+  ,S.city,S.district
+FROM
+	(SELECT x.*,O1.pay_time aftersend_paytime,FROM_UNIXTIME(MIN(O1.pay_time)) aftersendpay,(min(O1.pay_time) - start_time)/86400 aftersendpay_days
+	from
+		(select
+			TAS.merchant_id,TAS.task_name,TAS.send_code
+			#merchant_type,task_name,dynamics,FROM_UNIXTIME(TAS.start_time),FROM_UNIXTIME(TAS.end_time),TAS.status,status_remark
+			,CUC.user_coupon_id,CUC.uid,CUC.coupon_price,coupon_status,CUC.start_time
+			,FROM_UNIXTIME(CUC.start_time) coupon_starttime,FROM_UNIXTIME(CUC.end_time)  coupon_endtime,(CUC.end_time-CUC.start_time)/86400 coupon_duringdays
+			,USR.order_code
+			,U.phone
+			,UCP.dt_avg,UCP.realprice_avg,wcount,cdt_avg
+			,UP.predict_dt
+			,amount_limit,price_rule
+			,FROM_UNIXTIME(max(O.pay_time)) lastpay,(max(O.pay_time) - CUC.start_time)/86400 lastpay_days
+		from
+			ods.ods_wei_smart_coupon_task TAS
+		right join
+			ods.ods_wei_coupon_user_coupons CUC
+		on CUC.activity_code = TAS.send_code
+		#and CUC.activity_type = TAS.task_type + 6
+		left join
+			ods.ods_wei_coupon_use_record USR
+		on USR.user_coupon_id = CUC.user_coupon_id
+		left join
+			ods.ods_wei_users U
+		on CUC.uid = U.uid
+		left join
+			bimodels.bm_user_clusting_platform UCP
+		on UCP.uid = CUC.uid
+		left join
+			bimodels.bm_user_predict_ UP
+		on UP.uid = UCP.uid
+		left join
+			ods.ods_wei_coupons WC
+		on WC.coupon_id = CUC.coupon_id
+		left join
+			ods.ods_wei_coupon_amount_rule WCAR
+		on WCAR.rule_id = WC.amount_rule_id
+		left join
+			dw.dw_inspay_orders O
+		on O.uid = UCP.uid and O.pay_time < CUC.start_time - 14400
+		where 1=1
+		and TAS.merchant_id in (_i_)
+		and TAS.send_code = '_i_'
+		group by CUC.user_coupon_id) X
+	left join
+		dw.dw_inspay_orders O1
+	on O1.uid = X.uid and O1.pay_time > X.start_time
+	group by user_coupon_id ) XX
+left join
+dw.dw_inspay_orders O1
+on O1.uid = XX.uid and O1.pay_time = XX.aftersend_paytime
+left join
+ods.ods_wei_stations S
+on O1.stid = S.stid
+"""
+,
+"smart_coupon_uv":"""
+SELECT
+  XXX.*
+  ,O1.order_code as1_order_code,O1.stid as1_stid,O1.orig_price,O1.real_price,O1.coupon_discount,O1.user_coupon_id as1_user_coupon_id,O1.activity_type
+  ,S.city,S.district
+FROM
+	(SELECT XX.*,O1.pay_time aftersend_paytime,FROM_UNIXTIME(MIN(O1.pay_time)) aftersendpay,(min(O1.pay_time) - start_time)/86400 aftersendpay_days
+	from
+	    (select
+	    x.*,FROM_UNIXTIME(max(O.pay_time)) lastpay,(max(O.pay_time) - X.start_time)/86400 lastpay_days
+	    from
+            (select
+                TAS.merchant_id,TAS.task_name,TAS.send_code
+                #merchant_type,task_name,dynamics,FROM_UNIXTIME(TAS.start_time),FROM_UNIXTIME(TAS.end_time),TAS.status,status_remark
+                ,CUC.user_coupon_id,CUC.uid,CUC.coupon_price,max(coupon_status) coupon_status,CUC.start_time
+                ,FROM_UNIXTIME(CUC.start_time) coupon_starttime,FROM_UNIXTIME(CUC.end_time) coupon_endtime,(CUC.end_time-CUC.start_time)/86400 coupon_duringdays
+                ,max(USR.order_code) order_code,count(1) coupons_num,sum(USR.order_code>0) use_coupons_num
+                ,U.phone
+                ,UCP.dt_avg,UCP.realprice_avg,wcount,cdt_avg
+                ,UP.predict_dt
+                ,amount_limit,price_rule
+            from
+                ods.ods_wei_smart_coupon_task TAS
+            right join
+                ods.ods_wei_coupon_user_coupons CUC
+            on CUC.activity_code = TAS.send_code
+            #and CUC.activity_type = TAS.task_type + 6
+            left join
+                ods.ods_wei_coupon_use_record USR
+            on USR.user_coupon_id = CUC.user_coupon_id
+            left join
+                ods.ods_wei_users U
+            on CUC.uid = U.uid
+            left join
+                bimodels.bm_user_clusting_platform UCP
+            on UCP.uid = CUC.uid
+            left join
+                bimodels.bm_user_predict_ UP
+            on UP.uid = UCP.uid
+            left join
+                ods.ods_wei_coupons WC
+            on WC.coupon_id = CUC.coupon_id
+            left join
+                ods.ods_wei_coupon_amount_rule WCAR
+            on WCAR.rule_id = WC.amount_rule_id
+            where 1=1
+            and TAS.merchant_id in (_i_)
+            and TAS.send_code = '_i_'
+            group by CUC.uid
+            ) X
+		left join
+			dw.dw_inspay_orders O
+		on O.uid = X.uid and O.pay_time < X.start_time - 14400
+		group by user_coupon_id
+		) XX
+	left join
+		dw.dw_inspay_orders O1
+	on O1.uid = XX.uid and O1.pay_time > XX.start_time
+	group by user_coupon_id
+	) XXX
+left join
+dw.dw_inspay_orders O1
+on O1.uid = XXX.uid and O1.pay_time = XXX.aftersend_paytime
+left join
+ods.ods_wei_stations S
+on O1.stid = S.stid
+"""
+,'WOB_smart_coupon_detail':"""
+SELECT task_name,dynamics
+  ,TD.*,UNIX_TIMESTAMP(now())>TD.send_time
+FROM weicheche.wei_smart_coupon_task TAS
+left join weicheche.wei_smart_coupon_task_detail TD
+on TD.task_code = TAS.send_code
+where 1=1
+and TAS.merchant_id in (_i_)
+and TAS.send_code = '_i_'
+;"""
+,'WOB_smart_coupon_task':"""
+set @someday = now() ;
+set @someday = _i_ ;
+
+SELECT SCT.*,S.stname
+       ,count(DISTINCT TD.coupon_ids),count(1),sum(TD.`status`=3),sum(TD.create_time>TD.send_time),sum(TD.`status`=1),sum(TD.`status`=2)
+FROM weicheche.`wei_smart_coupon_task` SCT
+left join weicheche.wei_stations S
+ON SCT.merchant_id = S.stid
+left join weicheche.wei_smart_coupon_task_detail TD
+on TD.task_code = SCT.send_code and TD.del_time=0
+where UNIX_TIMESTAMP(@someday) BETWEEN SCT.start_time and SCT.end_time and SCT.merchant_id not in (171073)
+and SCT.merchant_id in (_i_)
+group by SCT.send_code
+"""
