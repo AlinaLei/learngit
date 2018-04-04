@@ -141,14 +141,15 @@ and TAS.send_code = '_i_'
 set @someday = now() ;
 set @someday = _i_ ;
 
-SELECT SCT.*,S.stname
+SELECT SCT.merchant_id,SCT.task_type,SCT.task_name,SCT.send_code,SCT.dynamics,SCT.status,SCT.status_remark
+       ,FROM_UNIXTIME(SCT.create_time) create_date,FROM_UNIXTIME(SCT.start_time) start_date,FROM_UNIXTIME(SCT.end_time) end_date,FROM_UNIXTIME(SCT.task_end_time) task_end_date,S.stname
        ,count(DISTINCT TD.coupon_ids),count(1),sum(TD.`status`=3),sum(TD.create_time>TD.send_time),sum(TD.`status`=1),sum(TD.`status`=2)
 FROM weicheche.`wei_smart_coupon_task` SCT
 left join weicheche.wei_stations S
 ON SCT.merchant_id = S.stid
 left join weicheche.wei_smart_coupon_task_detail TD
 on TD.task_code = SCT.send_code and TD.del_time=0
-where UNIX_TIMESTAMP(@someday) BETWEEN SCT.start_time and SCT.end_time and SCT.merchant_id not in (171073)
+where UNIX_TIMESTAMP(@someday) BETWEEN SCT.start_time and SCT.end_time and SCT.merchant_id not in (171073) and SCT.del_time=0
 and SCT.merchant_id in (_i_)
 group by SCT.send_code
 """

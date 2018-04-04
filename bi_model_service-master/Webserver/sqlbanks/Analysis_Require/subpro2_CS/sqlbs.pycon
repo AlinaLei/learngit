@@ -228,9 +228,9 @@ set @enday = '20180228' ;
 set @stday = '_i_' ;
 set @enday = '_i_' ;
 
-SELECT s1.order_code, s1.orig_price, s1.real_price, s1.pay_price, s1.oil_liter,
+SELECT concat("'",s1.order_code) order_code, s1.orig_price, s1.real_price, s1.pay_price, s1.oil_liter,
        l2.stname, l1.oil_name, FROM_UNIXTIME(s1.pay_time) as '交易时间' , l3.phone,s1.payment_id as '支付方式',
-       l5.coupon_name,s1.coupon_discount,s1.pre_level_id,l7.level_name as '交易等级',l8.level_name as '交易后等级',
+       l5.coupon_name,s1.coupon_discount,l7.level_name as '交易等级',l8.level_name as '交易后等级',
        l6.gun_no as '枪号',s1.credit_unit_discount as '积分每分优惠'
        #,t2.customer_identity as '客户身份'
        ,GROUP_CONCAT(t3.sub_type_name) as '客户身份'

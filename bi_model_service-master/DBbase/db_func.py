@@ -25,6 +25,7 @@ class my_():
         self.name = ''
         self.engs_stment = "mysql+pymysql://%s:%s@%s:%s/%s?charset=%s"
         self.wait = 4  # 为了闪断地令人蛋碎的mysql
+        self.module = pymysql
         self.c_conn(name)
 
     def wait_for_anothert(self, errflag, err):
@@ -57,9 +58,9 @@ class my_():
             else:
                 return 0
 
-            self.conn=pymysql.connect(host=self.db_dic['ho'], user=self.db_dic['us'], passwd=self.db_dic['pwd']
+            self.conn=self.module.connect(host=self.db_dic['ho'], user=self.db_dic['us'], passwd=self.db_dic['pwd']
                                       , port=self.db_dic['pt'], db=self.db_dic['db'], charset=self.db_dic['cset'])
-            self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+            self.cur = self.conn.cursor(self.module.cursors.DictCursor)
             self.engs = self.engs_stment % (self.db_dic['us'], self.db_dic['pwd']
                                         , self.db_dic['ho'], self.db_dic['pt'], self.db_dic['db'], self.db_dic['cset'])
             # self.sh_for_load = 'mysql -h%s -u%s -p%s -P%s %s --local-infile=1 -e "%%s" ' % (self.db_dic['ho']
@@ -219,6 +220,7 @@ class ms_(my_):
         super(ms_, self).__init__()
         self.db_dic = {'ho': '', 'pt': 1433, 'cset': 'UTF-8'}
         self.engs_stment = "mssql+pymssql://%s:%s@%s:%s/%s?charset=%s"
+        self.module = pymssql
 
     def getdata_(self, sqls):
         if type(sqls) is list:

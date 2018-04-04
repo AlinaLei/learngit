@@ -4,7 +4,8 @@ import logging
 import calendar
 
 PRO_NAME = 'bi_model_service'
-PRO_PATH = re.match('.*'+PRO_NAME, os.getcwd()).group(0)
+# PRO_PATH = re.match('.*'+PRO_NAME, os.getcwd()).group(0)
+PRO_PATH = os.path.dirname(os.getcwd())
 
 
 def relative_path(path):

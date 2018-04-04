@@ -5,8 +5,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import path
 from urllib.parse import urlparse
 import sys
-sys.path.append('../.settings')
-from config import *
 
 playdirandport = {'dir': '', 'port': 0, 'ip': ''}
 
@@ -56,10 +54,10 @@ class HTTPServerRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404, 'File Not Found: %s' % self.path)
 
 
-def run(name='FILE', file_path='/'):
+def run(port=10033, file_path='/'):
     playdirandport['dir'] = path.dirname(path.realpath(__file__)) + file_path
-    playdirandport['port'] = int(WBASE[name+'_PORT'])
-    playdirandport['ip'] = WBASE['WEBserver']
+    playdirandport['port'] = int(port)
+    playdirandport['ip'] = '0.0.0.0'
     print('starting server %s, port:%s' % (playdirandport['ip'], playdirandport['port']))
 
     # Server settings
