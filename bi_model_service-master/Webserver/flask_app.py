@@ -465,8 +465,8 @@ def bi_reshape():
 
 
 if __name__ == "__main__":
-    my = my_(config.MYSQL_BI_RW_ENV)
-    wi = WebInstance()
+    my = ms_(config.MYSQL_BI_RW_ENV)
+    wi = WebInstance_ms()
     kargs = dict(host='0.0.0.0', port=int(config.WBASE['WEB_PORT']), threaded=True, debug=False)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "dp:",)
