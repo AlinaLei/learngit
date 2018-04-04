@@ -25,27 +25,26 @@ mimedic = {
 }
 
 
-class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
+class HTTPServerRequestHandler(BaseHTTPRequestHandler):
 
     # def __init__(self,file_path):
     #   super(testHTTPServer_RequestHandler, self).__init__()
     #   self.file_path = curdir + file_path
 
     def do_GET(self):
-
         querypath = urlparse(self.path)
         query_path, query = querypath.path, querypath.query
 
         if query_path.endswith('/'):
             query_path += 'index.html'
         filename, fileext = path.splitext(query_path)
-        sendReply = True
+        send_reply = True
         if fileext in mimedic:
-            mimetype =mimedic[fileext]
+            mimetype = mimedic[fileext]
         else:
             mimetype = 'application/octet-stream'
 
-        if sendReply:
+        if send_reply:
             try:
                 with open(path.realpath(playdirandport['dir'] + query_path), 'rb') as f:
                     content = f.read()
@@ -57,15 +56,15 @@ class testHTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404, 'File Not Found: %s' % self.path)
 
 
-def run(name='FILE',file_path='/'):
+def run(name='FILE', file_path='/'):
     playdirandport['dir'] = path.dirname(path.realpath(__file__)) + file_path
     playdirandport['port'] = int(WBASE[name+'_PORT'])
     playdirandport['ip'] = WBASE['WEBserver']
-    print('starting server %s, port:%s' %(playdirandport['ip'],playdirandport['port']))
+    print('starting server %s, port:%s' % (playdirandport['ip'], playdirandport['port']))
 
     # Server settings
     server_address = (playdirandport['ip'], playdirandport['port'])
-    httpd = HTTPServer(server_address, testHTTPServer_RequestHandler)
+    httpd = HTTPServer(server_address, HTTPServerRequestHandler)
     print('running server...')
     httpd.serve_forever()
 
@@ -76,6 +75,8 @@ if __name__ == '__main__':
             print(sys.argv[1])
             eval(sys.argv[1])
         except Exception as err:
-            print('run Exception:',err)
+            print('run Exception:', err)
+    elif len(sys.argv) == 3:
+        run(sys.argv[1], sys.argv[2])
     else:
         run()

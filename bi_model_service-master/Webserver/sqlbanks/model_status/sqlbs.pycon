@@ -1,7 +1,12 @@
 'DW_predict_record_accuracy':
 """
-select ptype, date(real_time),count(1),sum(derror = 0),avg(derror = 0),sum(errorrate1<0.99),avg(errorrate1<0.99),sum(errorrate2<0.99),avg(errorrate2<0.99)  from bimodels.bm_user_predict_record
-where uid > 0 and real_time > _i_ and real_time < _i_
+select ptype,date(real_time),count(1),sum(derror = 0),avg(derror = 0),sum(errorrate1<0.99),avg(errorrate1<0.99),sum(errorrate2<0.99),avg(errorrate2<0.99)
+from bimodels.bm_user_predict_record UPR
+inner join bimodels.bm_user_clusting_platform UCP
+ON UCP.uid = UPR.uid
+where UCP.uid > -4
+and wcount > _i_ and wcount < _i_
+and ptype in (_i_) and real_time > _i_ and real_time < _i_ and UPR.update_time > _i_
 group by ptype,date(real_time) with rollup
 """
 ,'DW_predictmodel_status':
@@ -10,31 +15,35 @@ select minfo,update_time from bimodels.bm_predictmodel_status where 1>0 and mid 
 """
 ,'DW_user_predict':
 """
-select uid, ptype, predict_time,rewei_time,predict_dt,modelpara,modelchoice,update_time,max(update_time),count(1) from bimodels.bm_user_predict_
+select  uid, ptype, predict_time, rewei_time, predict_dt, modelpara, modelchoice, update_time,max(update_time),count(1) from bimodels.bm_user_predict_
 where 1>0 and uid in (_i_) and predict_time > _i_ and ptype in (_i_) and predict_dt >= _i_ and predict_dt <= _i_ and update_time >= _i_
 group by uid,ptype ;
-|{"uid":" predict_time,rewei_time,predict_dt,modelpara,modelchoice,update_time,"}
+|{"uid":"uid,predict_time,rewei_time,predict_dt,modelpara,modelchoice,update_time"}
 """
 ,'DW_inspay_orders_detail':
 """
-select uid,stid,group_id, pay_time/24/3600 daytime,from_unixtime(pay_time) paytime , real_price realprice, orig_price op, orig_price/list_unit_price liters
-, cast(from_unixtime(pay_time, '%H')  as unsigned)+cast(from_unixtime(pay_time, '%i')  as unsigned)/60 paytoc
-, cost_credit cc, coupon_discount cd, pay_time-order_time durt
-, DAYOFWEEK(from_unixtime(pay_time)) weekday
-, DAYOFMONTH(from_unixtime(pay_time)) monthday
-, DAYOFYEAR(from_unixtime(pay_time)) yd
-from dw.dw_inspay_orders
-where ( order_status = 3 or order_status = 4 )
-and uid in (_i_)
-and stid in (_i_)
-and group_id in (_i_)
+select
+  user_id uid,merchant_id  stid,pay_time/24/3600 daytime,from_unixtime(pay_time) paytime ,goods_amount/100 op,pay_money/100  realprice,goods_number liters,market_price,actual_price,
+  cast(from_unixtime(pay_time, '%H')  as unsigned)+cast(from_unixtime(pay_time, '%i')  as unsigned)/60 paytoc,
+  OI.credit_fee cc,OI.coupon_fee cd, O.pay_time ,O.create_time,
+  DAYOFWEEK(from_unixtime(pay_time)) weekday,
+  DAYOFMONTH(from_unixtime(pay_time)) monthday,
+  DAYOFYEAR(from_unixtime(pay_time)) yd
+from ods.ods_wei_order_info O
+left join ods.ods_wei_order_items OI
+ON O.id = OI.order_id
+where merchant_id not in (171073,177370,177619,176669,177525,10258,10261)
+and is_suborder = 1 and goods_type = 10
+and order_status in (1160,2010)
+and user_id in (_i_)
+and merchant_id in (_i_)
 and pay_time <= _i_
-order by pay_time
+
 """
-,'DW_user_clusting_platfrom':
+,'DW_user_clusting_platform':
 """
-select uid, user_clustingid, wcount,count(1),avg(wcount),avg(dt_avg),avg(liters_avg)
-from bimodels.bm_user_clusting_platfrom
+select uid, user_clustingid, wcount,count(1),avg(wcount),avg(dt_avg),avg(liters_avg),avg(liters_std0),avg(realprice_avg),avg(paytoc_avg)
+from bimodels.bm_user_clusting_platform
 where 1>0 and uid > _i_ and uid in (_i_) and wcount > _i_ and wcount < _i_
 group by user_clustingid,wcount,uid with rollup
 """

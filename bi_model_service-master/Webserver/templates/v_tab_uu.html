@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
- <head> 
-  <meta charset="gb2312" /> 
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" /> 
-  <title> BI SYS 2.0</title> 
-  <script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-1.10.2.min.js"></script> 
-  <script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-ui-1.10.4.min.js"></script>
+{% extends "base.html" %}
+{% block title %}BI SYS 2.0{% endblock %}
+{% block part_head %}
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 
-  <style type="text/css">
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-1.10.2.min.js"></script>
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-ui-1.10.4.min.js"></script>
+
+	<style type="text/css">
 	table.gridtable {
 		font-family: verdana,arial,sans-serif;
 		font-size:11px;
@@ -31,14 +30,14 @@
 		border-color: #666666;
 		background-color:rgba(226, 234, 220, 0.83)
 	}
-	
+
 
 	.drag-input{
 		margin:5px;
 		border-bottom: 1px solid #e6e6e6;
 		height: 25px;
 	}
-	
+
 	.drag-input input , .ui-draggable{
 		display: inline-block;
 		float: initial;
@@ -131,7 +130,7 @@
 	    height: 100%;
 	    background: #000;
 	    opacity: .5;
-	    
+
 	}
 	.window-box {
 		position: absolute;
@@ -322,8 +321,8 @@
     display: block;
 }
  </style>
- <script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/translate.js"></script>
- <script>
+	<script src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/translate.js"></script>
+	<script>
 $(document).ready(function(){
 	for (var k in col_stack){
 		//$('input#'+k).val(col_stack[k])
@@ -332,42 +331,39 @@ $(document).ready(function(){
 		obb = $('input[id*='+k+']') //内容部分替换
 		obb.each(function(){$(this).val($(this).val().replace(k,col_stack[k]))})
         // if(obb.length > 0){obb.val(obb.val().replace(k,col_stack[k]))}
-　　    } catch(err) {console.log(err)}
-		
-
-		
+        }
+        catch(err) {console.log(err)}
 	};
 })
  </script>
-</head> 
- <body> 
-    
+{% endblock %}
+{% block body %}
    	<div class="task-tit">
 		<span >结果表  (继续透视汇总:可使用下面的扩展) ,或直接:</span>
 		<input type="hidden" value="{{xlsn}}" id="download"/>
-		<input type="button" id="one" value="下载文件" style = "margin-right:19px;border:0px;font-size: 15px;" onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:{{ base_dict['DOWNLOAD_PORT'] }}/{{xlsn}}'"/> 
+		<input type="button" id="one" value="下载文件" style = "margin-right:19px;border:0px;font-size: 15px;" onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:{{ base_dict['DOWNLOAD_PORT'] }}/{{xlsn}}'"/>
 		<!--input type="button" id="two" value=" view plot ! " onclick="javascript:window.location.href='//{{ base_dict['WEBserver'] }}:9999/maindir/{{xlsn}}.html'"/-->
-		<!--input style="padding:0; border:0; width:211px" value="{{tas}}"></input--> 
-		
-		
+		<!--input style="padding:0; border:0; width:211px" value="{{tas}}"></input-->
+
+
     </div>
 	<span class="nav-toggle">展开自助bi工具 ></span>
 	<div class="nav-config">
-	   <div id="nav1" class="nav-box acti-box"> 
+	   <div id="nav1" class="nav-box acti-box">
 	    <div class="nav-tit">
 	     维度:- 行
-	    </div> 
-	   </div> 
-	   <div id="nav2" class="nav-box"> 
+	    </div>
+	   </div>
+	   <div id="nav2" class="nav-box">
 	    <div class="nav-tit">
 	     维度:- 列
-	    </div> 
-	   </div> 
-	   <div id="nav3" class="nav-box"> 
+	    </div>
+	   </div>
+	   <div id="nav3" class="nav-box">
 	    <div class="nav-tit">
 	     统计指标
 	    </div>
-	   </div> 
+	   </div>
    		<ul class="nav-selcet" id="nav-selcet">
 	    	<li>sum</li>
 	    	<li>mean</li>
@@ -375,48 +371,47 @@ $(document).ready(function(){
 	    	<li>avg</li>
 	    	<li>precent</li>
 		</ul>
-	   <div class="nav-btn-groups"> 
-		    <input type="button" value="提交"  id="submit"/> 
+	   <div class="nav-btn-groups">
+		    <input type="button" value="提交"  id="submit"/>
 		    <input type="button" value="清除"  id="cancel"/>
 
-	   </div> 
-	   </div> 
-	</div> 
-	
+	   </div>
+	</div>
+
     <table class="gridtable">
 	<tr>
-	{% for s in lines[0] %} 
+	{% for s in lines[0] %}
     	<th><input type="button" id="{{s}}" value="{{s}}" title="{{s}}" class="ui-draggable" /></th>
 	{% endfor %}
 	</tr>
-    {% for line in lines %} 
+    {% for line in lines %}
     <tr>
-      {% for s in line %} 
-       <td>{{s}}</td> 
-      {% endfor %} 
-    </tr> 
+      {% for s in line %}
+       <td>{{s}}</td>
+      {% endfor %}
+    </tr>
     {% endfor %}
-    </table> 
+    </table>
 
-  	<div class="layer" id="layerbox">  						
-	  	<div class="layer-bg"></div>						
-	  	<div class="window-box">							
-	  		<div class="window-hd">								
-	  			<span>系统消息</span>								
-	  			<a class="close-box" href="javascript:;" id="closeBtn">关闭</a>							
-	  		</div>							
+  	<div class="layer" id="layerbox">
+	  	<div class="layer-bg"></div>
+	  	<div class="window-box">
+	  		<div class="window-hd">
+	  			<span>系统消息</span>
+	  			<a class="close-box" href="javascript:;" id="closeBtn">关闭</a>
+	  		</div>
 	  		<div class="window-bd">
 	  			<div class="winbox-item">提交成功！</div>
                 <input style="padding:0; border:0; width:211px" id="timetake" value="time taken::"></input>
 	  			<div class="winbox-item">
 	  				<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="downloadBtn" style="margin-right: 10px;">下载EXCEL</a>
 					<a class="btn btn-padding-middle btn-confirm" href="javascript:;" id="updateBtn">新页面打开</a>
-				</div>		
-			</div>					
-		</div>				
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<div class="layer" id="loadbox">  						
+	<div class="layer" id="loadbox">
 	  	<div class="layer-bg"></div>
 		<div class="load-container load4">
 			<div class="loader">Loading...</div>
@@ -438,12 +433,12 @@ $(document).ready(function(){
 	}
 	// nav_toggle();//默认展开
 	$('.nav-toggle').on('click',nav_toggle)
-	
+
 	$('.nav-box').on('click',function (){
 		$(this).addClass('acti-box')
 		$(this).siblings().removeClass('acti-box')
 	});
-	
+
 	function addtag(tag,nav){
 		var obj = tag.clone();
 		obj.removeAttr('id');
@@ -457,20 +452,20 @@ $(document).ready(function(){
 		}
 		$(nav).append(obj);
 	}
-	
+
 	$('.ui-draggable').not('.clone').on('dblclick',function (){
 	//console.log($(this))
 	addtag($(this),'#'+$('.acti-box.nav-box').attr('id'));
 	});
-	
+
 	$('.ui-draggable').draggable({
-		cancel:false, 
+		cancel:false,
 		helper: 'clone',
 		cursor: 'move',
 		stop: function( event, ui ) {
 			var pointX = parseInt(event.pageX);
 			var pointY = parseInt(event.pageY);
-			
+
 			//var left = parseInt($('#nav1').offset().left);
 			var htop = $('#nav1').offset().top
 			var width = parseInt($('#nav1').width());
@@ -483,7 +478,7 @@ $(document).ready(function(){
 			var nav3_left = parseInt($('#nav3').offset().left);
 			var nav = null;
 			if(pointY>htop&&pointY<htop+height){
-				if(pointX>nav1_left&&pointX<nav1_left+width) nav ='#nav1'; 
+				if(pointX>nav1_left&&pointX<nav1_left+width) nav ='#nav1';
 				else if(pointX>nav2_left&&pointX<nav2_left+width) nav ='#nav2';
 				else if(pointX>nav3_left&&pointX<nav3_left+width) nav ='#nav3';
 			}
@@ -500,7 +495,7 @@ $(document).ready(function(){
 				}
 				$(nav).append(obj);*/
 				addtag($(this),nav);
-			} 
+			}
         }
 	});
 
@@ -519,10 +514,15 @@ $(document).ready(function(){
 		obj.val(obj.val().split(':')[0]+':'+$(this).text()).attr('title',obj.attr('title').split(':')[0]+':'+$(this).text()).removeClass('selec-item');
 	})
 
-	
+
 	$('.nav-box').on('dblclick','.clone',function(){
 		$(this).remove();
 	});
+	function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return ''; //返回参数值
+    }
 	function PostData(){
 		var len = $('.nav-config').find('.clone').length;
 		if(len==0){
@@ -536,7 +536,7 @@ $(document).ready(function(){
 		$('#loadbox').show();
 		$.ajax({
 	      type:"post",
-	      data:"nav1="+nav1+"&nav2="+nav2+"&nav3="+nav3+"&url="+url,
+	      data:"nav1="+nav1+"&nav2="+nav2+"&nav3="+nav3+"&url="+url+"&code="+getUrlParam('code'),
 	      dataType: "json",
 	      //url:"/auditaccounts/save-receipt.do?t="+Math.random(),
 		  url:"/bi_reshape/",
@@ -555,15 +555,15 @@ $(document).ready(function(){
 	    	}
 	    })
 	}
-	
+
 	$('#submit').click(PostData);
 	document.onkeydown = function(event) {
 		var e = event || window.event || arguments.callee.caller.arguments[0];
 		if (e && e.keyCode == 13) {PostData();}
 		if (e && e.keyCode == 27) {nav_toggle();}
 	};
-		
-		
+
+
 	$('#cancel').click(function(){
 		$('.clone').remove();
 	});
@@ -587,6 +587,6 @@ $(document).ready(function(){
 		});
 		return arry
 	}
-	</script>  
- </body>
-</html>
+	</script>
+{% endblock %}
+

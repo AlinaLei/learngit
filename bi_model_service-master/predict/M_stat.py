@@ -29,7 +29,7 @@ rand_ab = lambda a=0, b=1: (b-a)*random.random()+a
 max_dt = 66.6
 
 
-def arr_nearest(mat,P,sorted=True): #返回arrry中最接近n的元素arrn和其位置indx      sorted=True 未排序的还没写  需要用到快排的思想(可以不用全排)
+def arr_nearest(mat,P,with_sort=True):  # 返回arrry中最接近n的元素arrn和其位置indx      with_sort=True 未排序的还没写  需要用到快排的思想(可以不用全排)
     res = np.argwhere(mat == P)
     if len(res) > 0:
         return P,res[0,0]
@@ -46,12 +46,12 @@ def arr_nearest(mat,P,sorted=True): #返回arrry中最接近n的元素arrn和其
             lr = (st,lr[1])
         st = int(rand_ab(*lr))
     if mat_[st+1] < -mat_[st]:
-        return  mat[st+1],st+1
-    else : return  mat[st],st
+        return mat[st+1], st+1
+    else: 
+        return mat[st], st
 
 
-
-def rand_cdf(cdf, leng=1, dx=0.1): #通过模拟求解CDF来生成分布 #syp.solve(cdf-rand_ab()) can not do this
+def rand_cdf(cdf, leng=1, dx=0.1):  # 通过模拟求解CDF来生成分布 #syp.solve(cdf-rand_ab()) can not do this
     randlist = []
     X = np.linspace(0,dx*(leng*10-1),leng*10)
     Y = np.array([cdf.evalf(subs={x: x1}, n=4) for x1 in X])
@@ -89,6 +89,7 @@ def rand_pdf(pdf, leng=1, m=100):
     predict=randarray.mean()
     yield predict, cdf.subs(x,predict), randarray #预测值，分布概率，预测列表
 
+
 # cdf 函数拟合
 from numba import *
 @jit()
@@ -103,21 +104,19 @@ def cdffit(x_, CDF):
 
 # 基于统计的预测
 def stat_pre(x_,rand_status=False):
-    center_dt_avg = 7  # 看作所有样本的均值,首5次内加油的用户参考值
-
+    center_dt_avg = 6.6  # 看作所有样本的均值,首5次内加油的用户参考值
     x_x = x_[x_<max_dt/2]
-    if x_x.__len__():
-        scal = (abs(x_x.mean()-center_dt_avg)+1)/(abs(x_x[-1]-center_dt_avg)+1)
-        center_dt_avg = (x_x.mean()+ x_x[-1]*scal)/(scal+1)
+    x_x = np.hstack((center_dt_avg, x_x))
+    scal = (abs(x_x.mean()-center_dt_avg)+1)/(abs(x_x[-1]-center_dt_avg)+1)
+    center_dt_avg = (x_x.mean() + x_x[-1]*scal)/(scal+1)
     if x_.__len__() < 6:
-        return center_dt_avg, len(x_), None
+        return center_dt_avg, len(x_), 'dt_avg'
 
     try:
         namd_, p_1 = cdffit(x_, rl_CDF)
     except Exception as err:
         print(err)
-        return center_dt_avg, len(x_), None
-
+        return center_dt_avg, len(x_), 'dt_avg'
 
     if float(p_1) <= 1:
         #fg = rand_pdf(rl_pdf.subs(namd, namd_), 20)
@@ -126,7 +125,7 @@ def stat_pre(x_,rand_status=False):
         cdf = rl_cdf.subs(namd, namd_)
         if rand_status == False:
             x_arr = np.linspace(0, max_dt/2, 334)
-
+            x1,p =  center_dt_avg, 0
             for x1 in x_arr:
                 p = cdf.evalf(subs={x: x1}, n=4)
                 if p > 0.56:

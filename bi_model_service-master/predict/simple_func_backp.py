@@ -3,16 +3,12 @@ from CreasAndsqls import *
 import sys
 sys.path.append('../DBbase')
 from db_func import *
-sys.path.append('../.settings')
-import config
-import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sn
 
 # global parameters:
-endtime = 1666666666
 
 
 # funct:  用户订单df预处理 ##
@@ -24,41 +20,38 @@ def uo_df_p(df):
 
 def user_order_detail(uid):
     dw = my_(config.MYSQL_BI_RW_ENV)
-    df = dw.to_dataframe(user_order_sql_bi % (uid, endtime))
+    sqlh = SqlHandler(user_order_sql_on)
+    cond_uid = {'user_id in ': uid}
+    df = dw.to_dataframe(sqlh.render_sqls(cond_uid))
+    # df = dw.to_dataframe(user_order_sql_bi % (uid, endtime))
     if df.__len__() < 2:
         return None
     df = uo_df_p(df)
     dw.quit()
     return df
 
-"""
-def predict(uid):
-    wecar250 = my_(config.MYSQL_PRODUCT_R_ENV)
-    df = wecar250.to_dataframe(
-        'select ordertime,UNIX_TIMESTAMP(ordertime) ut from wei_inspay_orders where uid = %s and ( order_status = 3 or order_status = 4 ) order by ordertime' % uid)
-    if len(df) < 2: return 0, len(df)
-    x_ = np.array(df.ut.diff().fillna(0)) / 3600 / 24
-    if len(x_) < 9: return x.mean(), len(df)
-    return stat_pre(x_)
 
+def plotdtbyuids(uids, to_path):
+    Le = np.ceil(np.sqrt(len(uids)))
+    fig = plt.figure(figsize=(14, 11))  # figsize=(10,6)
 
-def test():
-    dw = my_(config.MYSQL_BI_RW_ENV)
-    uid = dw.getdata('select uid from consume_time where  consume_times > 100 AND minprice > 40 AND average_price > 40 limit 12,1')[0]['uid']
-    wecar250 = my_(config.MYSQL_PRODUCT_R_ENV)
-    df = wecar250.to_dataframe('select ordertime,UNIX_TIMESTAMP(ordertime) ut from wei_inspay_orders where uid = %s and ( order_status = 3 or order_status = 4 ) order by ordertime' % uid)
-    x_ = np.array(df.ut.diff().fillna(0)) / 3600 / 24
-    namd_, p = cdffit(x_, rl_CDF)
-    num = 50  # 几种模拟分布的方式对比   生成的样本数 num
-    # rand_pdf 是ARM的一种实现  rand_cdf 是 ITM   详见 http://blog.csdn.net/pizi0475/article/details/48689237
-    fg = rand_pdf(rl_pdf.subs(namd, namd_), num)
-    xym = fg.__next__()
-    predict, P, randarray = fg.__next__()
-    cdf = rl_cdf.subs(namd, namd_)
-    randarray1 = np.array(rand_cdf(cdf, num, dx=0.1))
-    randarray2 = np.array(stats.expon.rvs(scale=namd_, size=num))
-    print(uid, namd_, p, xym)
-    print(randarray, predict, P)
-    print(randarray1, randarray1.mean(), cdf.subs(x, randarray1.mean()))
-    print(randarray2, randarray2.mean())
-"""
+    for i, uid in enumerate(uids):
+        df = user_order_detail(uid)
+        x_ = np.array(df.dt)
+        x__ = x_.mean()
+        pl = fig.add_subplot(int('%d%d%s' % (Le, Le, i + 1)))
+        sn.distplot(x_, color="#988CBE", bins=16, rug=True, ax=pl)
+        pl.plot([0, 0], [0, 2], color='#000000')
+        pl.plot([x__, x__], [0, 2], color='#009890', label='mean')
+        ybound = pl.properties()['ybound']
+        pl.annotate('mean of delta_d:%2.3f \n wcount: %d' % (x__, x_.__len__()), xy=(x__, 0)
+                    , xytext=(x__, 0.6 * ybound[1])
+                    , bbox=dict(boxstyle='sawtooth', fc="w")
+                    , arrowprops=dict(arrowstyle="-|>"
+                                      , connectionstyle="arc,rad=0.5", fc='r'))  # "-|>"代表箭头头上是实心的
+        pl.set_title(u'plot distributing: delta_d of uid=%s' % uid)
+        pl.set_xlabel('delta_d')
+        pl.set_ylabel('Rate(p)')
+        pl.grid(True)
+        pl.axis([-1, x_.max() + 1] + list(ybound))
+    fig.savefig(to_path)

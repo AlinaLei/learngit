@@ -1,24 +1,20 @@
-
-<!DOCTYPE HTML>
-<html lang="en-US">
-
-<head>
-<meta charset="UTF-8">
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+{% block part_head %}
+{{ super() }}
 <link rel="stylesheet" href="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/style/login.css" />
-<title>自动登陆</title>
 <style type="text/css">
 body{
 	background-image:url(http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/images/login.jpg);
 	background-repeat:no-repeat;
     background-position: 0px 39px;
-    background-size: cover; 
+    background-size: cover;
 	font-family: 'Oleo Script', cursive;
 }
 </style>
-	<script type="text/javascript" src="http://{{ base_dict['WEBserver'] }}:{{ base_dict['FILE_PORT'] }}/comm/static/js/jquery-2.1.4.min.js"></script>
-	<script type="text/javascript" src="http://www.gongjuji.net/Content/files/jquery.md5.js"></script>
-	<script type="text/javascript">
-	
+<script type="text/javascript" src="http://www.gongjuji.net/Content/files/jquery.md5.js"></script>
+<script type="text/javascript">
+
 	$(document).ready(function(){
         $("#lg-form").attr('action',$("#lg-form").attr('action')+window.location.search)
 		$("#login").click(function(){
@@ -42,7 +38,7 @@ body{
 						});
 					else
 						$("#message").html('<p class="error">ERROR: Invalid username and/or password.</p>');
-				}	
+				}
 			});
 			return false;
 		});
@@ -50,28 +46,28 @@ body{
 	});
 
 	</script>
-</head>
-<body>
+{% endblock %}
+
+{% block body %}
 	<div class="lg-container">
 		<h1>Admin Area</h1>
 		<form action="login" id="lg-form" name="lg-form" method="post">
-			
+
 			<div>
 				<label for="username">Username:</label>
 				<input type="text" name="username" id="username" placeholder="username"/>
 			</div>
-			
+
 			<div>
 				<label for="password">Password:</label>
 				<input type="password" name="password" id="password" placeholder="password" />
 			</div>
-			
-			<div>				
+
+			<div>
 				<button type="submit" id="login">Login</button>
 			</div>
-			
+
 		</form>
 		<div id="message"></div>
 	</div>
-</body>
-</html>
+{% endblock %}

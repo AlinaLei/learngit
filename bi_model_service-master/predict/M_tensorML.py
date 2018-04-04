@@ -1,6 +1,12 @@
 from numba import jit
 import numpy as np
 import tensorflow as tf
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+config1 = tf.ConfigProto()
+config1.gpu_options.allow_growth = True
+config1.allow_soft_placement = True
+# config.gpu_options.per_process_gpu_memory_fraction = 0.02
 
 
 def add_layer(inputs, in_size, out_size, activation_function=None, name='', with_scope=False):
@@ -28,26 +34,26 @@ def add_layer(inputs, in_size, out_size, activation_function=None, name='', with
 
 
 # L1正则化函数
-def W11(W):
-    return tf.sqrt(tf.reduce_sum(tf.square(W),1))
+def w11(W):
+    return tf.sqrt(tf.reduce_sum(tf.square(W), 1))
 def L1_loss(W):
-    return tf.reduce_sum(W11(W))
+    return tf.reduce_sum(w11(W))
 def LN(W,n=0.5):  # https://www.zhihu.com/question/62605106
-    return tf.reduce_sum(tf.pow(W11(W),n))
+    return tf.reduce_sum(tf.pow(w11(W),n))
 
 
 @jit()
-def nth_ladder_create(mat, n=3, col=-1): # 构造阶梯属性以实现RNN n阶数 col被选做构成阶梯的列(属性)
-    mat_=mat[n:, :]
-    for i in range(1,n+1):
-        mat_=np.hstack((mat[n-i:-i,col], mat_))
+def nth_ladder_create(mat, n=3, col=-1):  # 构造阶梯属性以实现RNN n阶数 col被选做构成阶梯的列(属性)
+    mat_ = mat[n:, :]
+    for i in range(1, n+1):
+        mat_ = np.hstack((mat[n-i:-i, col], mat_))
     return mat_
 
 
 class tensor_con():
     # 初始化network ie. hidenlayer_nodes=[2], lay_func=[tf.nn.sigmoid,None]
     # hidenlayer_nodes: 列表分别代表每个隐藏层节点数 lay_func:列表表示是每层激活函数 None 表示没有激活函数
-    def __init__(self,input_nodes, hidenlayers_nodes, lay_func, learnrate=0.1 ,Regu='None' ,name=''):
+    def __init__(self,input_nodes, hidenlayers_nodes, lay_func, learnrate=0.1, Regu=None, name=''):
         # self.name = ''.join([str(x) for x in ([input_nodes] + hidenlayers_nodes + [lay_func[-1].split('.')[-1]])])
         self.name = name
         self.hidenlayer_num = len(hidenlayers_nodes)
@@ -72,18 +78,20 @@ class tensor_con():
 
         # Regularization 正则化约束 and loss
         with tf.name_scope('Regularization'):
-            self.regu = eval(Regu+'(self.layersW[0])') if Regu else tf.constant(0,tf.float32)
+            self.regu = eval(Regu+'(self.layersW[0])') if Regu else tf.constant(0, tf.float32)
+        # with tf.device('/gpu:0'):
         with tf.name_scope('loss'):
-            self.l1 = tf.reduce_mean(tf.abs(tf.subtract(self.alllayers[-1], self.yinput)), reduction_indices=[0]) # reduction_indices是指沿tensor的哪些维度求和
+            self.l1 = tf.reduce_mean(tf.abs(tf.subtract(self.alllayers[-1], self.yinput)), reduction_indices=[0])  # reduction_indices是指沿tensor的哪些维度求和
             self.loss = self.l1 + self.regu
 
         # train
+        # with tf.device('/gpu:0'):
         with tf.name_scope('train'):
-            self.train_step = tf.train.AdamOptimizer().minimize(self.loss)
+            self.train_step = tf.train.AdamOptimizer(learning_rate=0.05).minimize(self.loss)
             # self.train_step = tf.train.MomentumOptimizer(learnrate,momentum = 0.01).minimize(self.loss)
-            # self.train_step = tf.train.GradientDescentOptimizer(learnrate).minimize(self.loss)
+            # self.train_step = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(self.loss)
         # tf sess init
-        self.sess = tf.Session()
+        self.sess = tf.Session(config=config1)
         self.sessinit()
 
     def sessinit(self, layersw=None):
@@ -131,47 +139,18 @@ class tensor_con():
             else:
                 return self.sieve_ind(sieve)
     
-    def pure_fitwith_be(self,beind_array):  # beind_array 长度就是次数，数值就是每次起点索引
-        for beind in beind_array:
-            self.sess.run(self.train_step,feed_dict={self.xinput: self.x_data[self.train_ind, :][beind:, :]
-                                           , self.yinput: self.y_data[self.train_ind, :][beind:, :]})
-        
-    '''def networkfit(self, times=50000, batch_train_lp=0, op_oerr=0.00003, op_otimes=1, eprint=False, lprint=False ):
-        if self.fit_times == 0:
-            self.sessinit()
-            
-        self.fit_times +=1
-        self.mse = 9999
-        batch_beind = 0
-        x_data = self.x_data[self.train_ind, :]
-        y_data = self.y_data[self.train_ind, :]
-
-        st = 0  # fitstop_otimes计数
-        # batch train control  批学习控制参数  此处是为了变向加重近期样本的权重（加强他们对学习结果的影响）.
-        for i in range(times):
-            arr_tmp = (np.random.random(100) - 1 / (batch_train_lp + 1)) * len(self.train_ind)
-            beind_array = np.clip(arr_tmp,0,np.inf,out=arr_tmp).astype('int')
-            self.pure_fitwith_be(beind_array)
-            mse = self.sess.run(self.loss, feed_dict={self.xinput: self.x_data[self.train_ind, :]
-                                                        , self.yinput: self.y_data[self.train_ind, :]})
-            if 2 * op_oerr > mse - self.mse > -op_oerr:
-                st += 1
-                if st == op_otimes:
-                    break
-            else:
-                st = 0
-            if mse < op_oerr * 10:
-                break
-            if eprint:
-                print('iter:', i, 'last_loss:', self.mse, '; loss:', mse, '; st:', st)
-            self.mse = mse
-        if lprint:
-            print('iter:', i, '; Relu:', self.sess.run(self.regu, feed_dict={self.xinput: self.x_data[self.train_ind, :], self.yinput: self.y_data[self.train_ind, :]}), '; loss:', mse)
-        return self'''
+    def pure_fitwith_be(self, beind_array, batch_size=100):  # beind_array 长度就是次数，数值就是每次起点索引
+        # for beind in beind_array:  change to gaint feed
+        while beind_array.__len__():
+            batch_arr,beind_array = beind_array[:batch_size], beind_array[batch_size:]
+            xtraining_data = np.vstack((self.x_data[self.train_ind, :][beind:, :] for beind in batch_arr))
+            ytraining_data = np.vstack((self.y_data[self.train_ind, :][beind:, :] for beind in batch_arr))
+            self.sess.run(self.train_step, feed_dict={self.xinput: xtraining_data, self.yinput: ytraining_data})
 
     # 使用Cross-validation 当结束条件 一般用在测试集和验证集都很多时
-    def networkfit_withCross(self, times=50000, batch_train_lp=0, op_oerr=0.00003, op_otimes=1, eprint=False, lprint=False):
-        if self.train_ind.__len__() < 50 or self.test_ind.__len__() < 10:
+    def networkfit_withCross(self, times=1000, batch_train_lp=0, op_oerr=0.00003, op_otimes=1, eprint=False, lprint=False):
+        # batch_train_lp  批学习控制参数  此处是为了变向加重近期样本的权重（加强他们对学习结果的影响）.
+        if self.train_ind.__len__() < 500 or self.test_ind.__len__() < 100:
             # print('sample_size(%s,%s) is too small !!' %(self.train_ind.__len__(),self.test_ind.__len__()))
             withCross = False
         else:
@@ -180,78 +159,57 @@ class tensor_con():
             self.sessinit()
         self.fit_times += 1
         self.mse = 9999
-        '''batch_beind = 0
-        x_data = self.x_data[self.train_ind, :]
-        y_data = self.y_data[self.train_ind, :]'''
-        st = 0  # fitstop_otimes计数
-        # batch train control  批学习控制参数  此处是为了变向加重近期样本的权重（加强他们对学习结果的影响）.
-        standard_feed = {self.xinput: self.x_data[self.train_ind, :]
-            , self.yinput: self.y_data[self.train_ind, :]}
+        standard_feed = {self.xinput: self.x_data[self.train_ind, :],
+                         self.yinput: self.y_data[self.train_ind, :]}
         print_form = 'iter:%s||last_loss:%s||loss(%s)=train(%s)+cross(%s)||Relu:%s||st:%s'
+        i, st = 0, 0  # i:times计数, st:fitstop_otimes计数
+        mse_cross, mse_train, mse = 0.0, 0.0, 0.0
         for i in range(times):
-            arr_tmp = (np.random.random(100) - 1 / (batch_train_lp + 1)) * len(self.train_ind)
-            beind_array = np.clip(arr_tmp, 0, len(self.train_ind)-1).astype('int')
-            self.pure_fitwith_be(beind_array)
-            mse_train = self.sess.run(self.loss, feed_dict=standard_feed)
-            mse_cross = self.sess.run(self.loss, feed_dict=standard_feed) if withCross else 0.0
-            mse = mse_cross + mse_train
-            if 2 * op_oerr > mse - self.mse > -op_oerr:
-                st += 1
-                if st == op_otimes:
-                    break
+
+            if withCross:
+                self.pure_fitwith_be([0, 0])
+                mse_cross = self.sess.run(self.loss, feed_dict={self.xinput: self.x_data[self.test_ind, :],
+                                                                self.yinput: self.y_data[self.test_ind, :]})
             else:
-                st = 0
-            if mse < op_oerr * 10:
-                break
+                arr_tmp = (np.random.random(99) - 1 / (batch_train_lp + 1)) * len(self.train_ind)
+                beind_array = np.clip(arr_tmp, 0, len(self.train_ind) - 1).astype('int')
+                self.pure_fitwith_be(beind_array, batch_size=40)
+
+            mse_train = self.sess.run(self.loss, feed_dict=standard_feed)
+            mse = mse_cross + mse_train
+            delta_mse = mse - self.mse
+            if op_oerr > delta_mse > -op_oerr:
+                st += 1
+            elif delta_mse > 10 * op_oerr:
+                st += 2
+            elif st > 0:
+                st -= .5
             if eprint:
-                print(print_form %(i,self.mse,mse,mse_train,mse_cross,'',st))
+                print(print_form %(i, self.mse, mse, mse_train, mse_cross,'',st))
+
             self.mse = mse
+            if st > op_otimes or mse < op_oerr * 100:
+                break
+
         if lprint:
             Relu_num = self.sess.run(self.regu, feed_dict=standard_feed)
             print(print_form % (i, self.mse, mse, mse_train, mse_cross, Relu_num, st))
         return self
-    '''if batch_train_lp > 0:
-                batch_beind = int((np.random.random(1) - 1 / (batch_train_lp + 1)) * self.len)
-                batch_beind = batch_beind if batch_beind > 0 else 0
-            # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数
-            self.sess.run(self.train_step, feed_dict={self.xinput: x_data[batch_beind:, :], self.yinput: y_data[batch_beind:, :]})
-            # 防止过拟合： 提前结束学习.  受参数 op_oerr-误差下降失效阈值 op_otimes最大失效次数 控制
-            if i % 100 == 0:
-                # to see the step improvement
-                mse_train = self.sess.run(self.loss, feed_dict={self.xinput: x_data, self.yinput: y_data})
-                mse_cross = self.sess.run(self.loss, feed_dict={self.xinput: self.x_data[self.test_ind, :], self.yinput: self.y_data[self.test_ind, :]})
-                # print('train:',mse_train,'  cross:',mse_cross)
-                mse = mse_cross + mse_train
-                if (2*op_oerr > mse - self.mse > -op_oerr):  # or mse - self.mse > 0.000002) and j > 10:
-                    st += 1
-                    if st == op_otimes:
-                        break
-                else: st = 0
-                if mse < op_oerr * 10:
-                    break
-                if eprint:
-                    print('iter:',i,'last_loss:',self.mse,'; loss(%s)=train(%s)+cross(%s)' %(mse,mse_train,mse_cross),'; st:',st)
-                self.mse = mse
-        if lprint:
-            print('iter:',i,'; Relu:',self.sess.run(self.regu, feed_dict={self.xinput: x_data, self.yinput: y_data})
-                  ,'; loss(%s)=train(%s)+cross(%s)' %(mse,mse_train,mse_cross))
-        return self'''
 
-    def netpredict(self, Inverse=True):
+    def netpredict(self, do_inverse=True):
         # self.yp_data = self.sess.run(self.alllayers[-1], feed_dict={self.xinput: self.x_data})
         for i in self.test_ind:
             self.yp_data[i, :] = self.sess.run(self.alllayers[-1], feed_dict={self.xinput: self.x_data[i, :]})
-        if Inverse:
+        if do_inverse:
             self.Inverse_normaliz()
         return self.yp_data
 
     def net_save_restore(self, save_path, sr_type='save'):
         a_saver = tf.train.Saver(self.layersW + self.layersb)
-        if sr_type ==  'save':
+        if sr_type == 'save':
             a_saver.save(self.sess, save_path)
         else:
             a_saver.restore(self.sess, save_path)
-
 
     def normalizx(self, tp='dev_Max'):
         self.Xnormtp = tp
@@ -289,7 +247,7 @@ class tensor_con():
             self.yp_data *= self.yMdata
             self.Ynormtp = None
         elif self.Ynormtp == 'rel_n11':
-            self.y_data = self.y_data * self.yMdata +self.ydelta
+            self.y_data = self.y_data * self.yMdata + self.ydelta
             self.yp_data = self.yp_data * self.yMdata + self.ydelta
             self.Ynormtp = None
         return self
